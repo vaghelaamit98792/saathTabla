@@ -1,0 +1,2043 @@
+import React, { useEffect, useRef, useState } from "react";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+// import "./Home.css"
+import Footer from "../../components/common/Footer";
+import HeroBanner from "../../components/common/HeroBanner";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import ProPlanModal from "../../components/common/ProPlanModal";
+import { Spinner } from "../../components/common/Spinner";
+import Artists from "../../components/common/Artists";
+import { accordionData, bars, cards, Durt } from "../../data/data";
+
+function Home() {
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playingIndex, setPlayingIndex] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedCard, setExpandedCard] = useState(null);
+  const [planDetails, setPlanDetails] = useState(null);
+  const [membershipdetails, setMembershipdetails] = useState(null)
+  const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ setPaymentStatus] = useState('');
+  const [checked, setChecked] = useState(false)
+console.log(checked,"checked");
+  // const navigate = useNavigate();
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+  };
+  const VoiceSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 2,
+    slidesToScroll: 2,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    responsive: [
+      {
+        breakpoint: 1024, // For tablets and large screens
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 2,
+          infinite: true,
+          dots: true
+        }
+      },
+      {
+        breakpoint: 768, // For small tablets
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          infinite: true,
+          dots: true
+        }
+      },
+      {
+        breakpoint: 480, // For mobile devices
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          infinite: true,
+          dots: true
+        }
+      }
+    ]
+  };
+  
+  const handleToggle = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  const scrollToBuyNow = () => {
+    document.getElementById("ByNow").scrollIntoView({ behavior: "smooth" });
+  };
+
+  const audioRefs = useRef([]);
+
+  const handlePlayPause = (index) => {
+    const currentAudio = audioRefs.current[index];
+    console.log("currentAudio", currentAudio);
+    if (currentAudio) {
+      if (isPlaying && playingIndex === index) {
+        currentAudio.pause();
+        setIsPlaying(false);
+        setPlayingIndex(null);
+      } else {
+        audioRefs.current.forEach((audio, i) => {
+          if (audio && i !== index) {
+            audio.pause();
+          }
+        });
+        currentAudio.play();
+        setIsPlaying(true);
+        setPlayingIndex(index);
+      }
+    } else {
+      console.error("Audio element is not available.");
+    }
+  };
+
+  const handleAudioEnd = () => {
+    setIsPlaying(false);
+    setPlayingIndex(null);
+  };
+
+
+  const playerRef = useRef([]);
+
+  const toggleExpand = (index) => {
+    const newIndex = expandedCard === index ? null : index;
+    setExpandedCard(newIndex);
+    setIsExpanded(newIndex !== null);
+  };
+
+  useEffect(() => {
+    playerRef.current.forEach((audio, index) => {
+      if (audio) {
+        if (index === expandedCard && isExpanded) {
+          audio.play();
+        } else {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      }
+    });
+  }, [isExpanded, expandedCard]);
+
+  useEffect(() => {
+    const fetchMembershipDetails = async () => {
+      try {
+        const response = await axios.post(
+          'https://www.gr8masters.com/SaathStudioAPI/api/V2/getMembershipdetails.php',
+          new URLSearchParams({
+            api_key: 'nK<uJ@Tk8&$B#-xq-?#}',
+            membership_id: "6",
+
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          }
+        );
+        console.log(response, "response");
+        if (!response.statusText === "ok") {
+          throw new Error('Network response was not ok');
+        }
+
+        if (response.data.status === "1") {
+          setPlanDetails({
+            originalPrice: response.data.membership_details.web_planprice_inr,
+            discountedPrice: response.data.membership_details.web_discountedprice_inr,
+          });
+          setMembershipdetails(response.data.membership_details)
+        } else {
+          throw new Error(response.data.message);
+        }
+      } catch (error) {
+        console.log(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMembershipDetails();
+  }, []);
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
+
+  const displayRazorpay = async (user) => {
+    const res = await loadRazorpay();
+
+    if (!res) {
+      alert('Razorpay SDK failed to load. Are you online?');
+      return;
+    }
+    const formData = new URLSearchParams();
+    formData.append('api_key', 'rzp_test_NXzv1Lax34llQA');
+    formData.append('userid', user.userid);
+    formData.append('membership_id', membershipdetails?.membership_id);
+    formData.append('order_amount', membershipdetails?.web_discountedprice_inr);
+    formData.append('order_remark', membershipdetails.level_name);
+    formData.append('payment_mode', 'razorpay');
+    const createOrderResponse = await fetch('https://www.gr8masters.com/SaathStudioAPI/api/V2/placeUserOrderAndroid.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: formData,
+    });
+
+
+    const { order_id } = await createOrderResponse.json();
+
+    const options = {
+      key: "rzp_test_akPojIRzoH7wjG",
+      amount: parseFloat(membershipdetails.web_discountedprice_inr) * 100, // Convert to paise
+      // amount: membershipdetails.web_discountedprice_inr, // Convert to paise
+      currency: 'INR',
+      name: user.username,
+      description: 'Test Transaction',
+      image: "compnaylogo",
+      order_id: order_id,
+      handler: function (response) {
+        alert(`Payment ID: ${response.razorpay_payment_id}`);
+        alert(`Order ID: ${response.razorpay_order_id}`);
+        alert(`Signature: ${response.razorpay_signature}`);
+        setPaymentStatus('Payment successful');
+      },
+      prefill: {
+        name: user.username,
+        email: user.email,
+        contact: ''
+      },
+      notes: {
+        address: 'Razorpay Corporate Office'
+      },
+      theme: {
+        color: '#3399cc'
+      }
+    };
+
+    const rzp1 = new window.Razorpay(options);
+    rzp1.open();
+  };
+
+  const handlePayment = () => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      setIsModalOpen(true)
+    } else {
+      displayRazorpay(user)
+    }
+  }
+
+  return (
+    <>
+      <HeroBanner />
+      <div className="section2 pt-10">
+        <div className="container mx-auto">
+          <h2 className="text-2xl lg:text-[34px] font-avertabold text-center">
+            Tabla Accompaniment Just Got{" "}
+            <span className="relative ">
+              <span className="absolute -bottom-0.5">
+                <img src="images/voiceline2.webp" className="hidden lg:block" alt="" />
+              </span>
+              Real
+            </span>
+          </h2>
+          <div className="flex mt-5 lg:mt-10 justify-center flex-col">
+            <div className="relative w-full text-center lg:w-40 xl:w-1/4 mt-0  mb-10">
+              <p className="font-caveat text-xl lg:text-2xl rotate-[0deg] lg:-rotate-[10deg] lg:absolute lg:right-0 static">
+                Play the Audios
+              </p>
+              <div className="svg-wrapper absolute top-11 left-12 hidden lg:flex lg:right-0  justify-end">
+                <svg
+                  width={74}
+                  height={45}
+                  viewBox="0 0 74 45"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className=""
+                >
+                  <path
+                    d="M1 0.5C3.33333 15.5 20.9 41.6 72.5 26"
+                    stroke="black"
+                  />
+                  <path d="M54.5 17L72.5 26L63 44.5" stroke="black" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-center lg:w-3/4 xl:2/4 w-full mx-auto ">
+              {Durt.map((instrument, index) => (
+                <div
+                  className="w-1/2 lg:w-40 play-box flex justify-center mb-10 lg:mb-0"
+                  key={index}
+                >
+                  <div
+                    aria-label={`Click To Play ${instrument.image}`}
+                    className="top_button_play paused"
+                    data-src={instrument.audio}
+                  >
+                    <div
+                      className={`w-28 h-28 relative play-icon-wrapper b${
+                        index + 1
+                      }`}
+                    >
+                      <img
+                        src={instrument.image}
+                        alt={`${instrument.image}`}
+                      />
+                      <div className="play-icon absolute -translate-x-2/4 -translate-y-2/4 text-center left-14 top-[55%]">
+                        <button
+                          className="playPauseButton"
+                          onClick={() => handlePlayPause(index)}
+                        >
+                          <img
+                            className="playPauseIcon"
+                            src={
+                              isPlaying && playingIndex === index
+                                ? "images/pause.png"
+                                : "images/play.png"
+                            }
+                            alt="play/pause icon"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <audio
+                    className="audioPlayer"
+                    src={instrument.audio}
+                    ref={(el) => {
+                      audioRefs.current[index] = el;
+                    }}
+                    onEnded={handleAudioEnd}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col mt-0 lg:mt-[102px] pb-10">
+            {/* <h2 class="text-2xl lg:text-[44px] font-averta text-center w-full font-avertabold mb-2">
+      Grab Access To Saath Tabla Today…
+
+    </h2>
+    <h3 class="text-2xl font-averta text-center w-full font-avertabold">
+      No Monthly Fees –
+      <span class="relative"
+        ><span class="absolute -bottom-1"
+          ><img src="images/voiceline2.webp" /></span
+        >One Time Payment</span
+      >
+    </h3> */}
+            <div className="star-rating justify-center flex flex-col">
+              {/* <div class="flex justify-center mt-3 flex-col lg:flex-row">
+        <div class="flex justify-center">
+          <img src="images/people.png" alt="People " />
+        </div>
+        <div class="rating-wrapper flex items-center justify-center">
+          <div class="">
+            <div class="star-icon flex justify-end items-center gap-1 justify-center">
+              <i class="fa fa-star text-amber-400"></i>
+              <i class="fa fa-star text-amber-400"></i>
+              <i class="fa fa-star text-amber-400"></i>
+              <i class="fa fa-star text-amber-400"></i>
+              <i class="fa fa-star text-amber-400"></i>
+              <span class="font-averta">5.0</span>
+            </div>
+            <h3 class="font-averta text-sm">From 3,000+ reviews</h3>
+          </div>
+        </div>
+      </div> */}
+              <div className="w-full lg:w-fit mx-auto flex justify-center flex-col lg:flex-wrap">
+                <h2
+                  onClick={scrollToBuyNow}
+                  className="w-full cursor-pointer bg-[#1fb6ff] text-center text-nowrap  text-white text-xl lg:text-[35px] inline-block px-5 lg:px-16 rounded-[40px] py-4 font-avertabold shadow-[0px_20px_35px_0px_rgb(31_182_255_/_29%)] hover-shadow-none"
+                >
+                  Get Saath Tabla Right Now!
+                </h2>
+              </div>
+              <div className="text-center mt-8 lg:mt-[102px] ">
+                <h3 className="font-avertabold text-xl lg:text-2xl">
+                  Real Results from Real Customers -
+                  <span className="font-averta">Read Their Stories:</span>
+                </h3>
+              </div>
+              <div className="w-full lg:w-2/5 mx-auto mt-12 relative">
+                <Slider {...settings}>
+                  <div className="item">
+                    <img src="images/testimonial-1.jpg" alt="Testimonial 1" />
+                  </div>
+                  <div className="item">
+                    <img src="images/testimonial-2.jpg" alt="Testimonial 2" />
+                  </div>
+                  <div className="item">
+                    <img src="images/testimonial-3.jpg" alt="Testimonial 3" />
+                  </div>
+                </Slider>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="section3 mt-[70px]">
+        <div className="container mx-auto">
+          <div className="p-5 xl:p-14 bg-gradient-to-r from-[#e9f8ff] to-[#f7f0fe] rounded-[29px] flex flex-wrap gap-4 xl:gap-11 justify-center relative before:hidden md:before:block before:absolute before:w-[141px] before:h-[155px] before:-right-10 before:-bottom-9 before:-z-10 before:bg-dottedbg">
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon1.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="font-averta text-[19px] xl:text-lg">
+                  Best Tabla Accompaniment for Male{" "}
+                  <span className="font-avertabold">
+                    Vocalists, Female Vocalists, and various instruments like
+                    Violin, Sitar, Sarod, Sarangi, Flute, Santoor, and Slide
+                    Guitar.
+                  </span>
+                </h4>
+              </div>
+            </div>
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon2.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="font-averta text-[19px] xl:text-lg">
+                  Real Tabla Loops by
+                  <span className="font-avertabold">Maestros</span>
+                </h4>
+              </div>
+            </div>
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon3.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="text-[19px] lg:text-lg font-avertabold">
+                  Customizable Tanpura and Swarmandal
+                </h4>
+              </div>
+            </div>
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon4.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="font-averta text-[19px] xl:text-lg">
+                  AI-Based Sequence for Human-Like{" "}
+                  <span className="font-avertabold">Experience</span>
+                </h4>
+              </div>
+            </div>
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon5.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="font-averta text-[19px] xl:text-lg">
+                  Volume Mixer and
+                  <span className="font-avertabold">Pitch/Tempo</span>
+                  Control
+                </h4>
+              </div>
+            </div>
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon5.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="font-averta text-[19px] xl:text-lg">
+                  Available for Android and iOS
+                  <br />
+                  12+ Taals for Tabla <br />
+                  120+ Raags for Swarmandal and Counting
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="section4 pt-10">
+        <div className="container mx-auto">
+          <div className="flex justify-center">
+            <h2 className="font-averta text-base lg:text-[35px] bg-[#c1ebff] px-5 lg:px-11 rounded-3xl py-2">
+              Is It Real, Or Is It Saath Tabla?
+            </h2>
+          </div>
+          <div className="text-center">
+            <h3 className="text-center max-w-[700px] mx-auto text-2xl xl:text-[44px] font-avertabold mt-8 leading-tight">
+              97% of people can’t tell which tabla is .
+              <span className="relative">
+                <span className="absolute -bottom-1">
+                  <img src="images/voiceline3.webp" alt="" />
+                </span>
+                played by the app
+              </span>
+            </h3>
+          </div>
+          <div className="flex flex-col mt-2">
+            <div className="md:flex justify-center hidden ">
+              <img src="images/connection1.webp" alt="connection" />
+            </div>
+            <div className="flex flex-col md:flex-row gap-6 justify-between mt-9 px-0 xl:px-10 relative before:block before:absolute before:w-[141px] before:h-[155px] before:left-0 before:-top-9 before:-z-10 before:bg-dottedbg">
+              <div className="w-full md:w-1/2 flex flex-col hover:scale-105 transition-all">
+                <div className="flex flex-col bg-checkbg1 px-12 md:px-7 xl:px-[70px] bg-size-full bg-no-repeat bg-100%">
+                  <h3 className="text-xl rounded-3xl bg-gradient-to-r from-[#00bdff] to-[#8179ff] flex -mt-5 w-[120px] py-0.5 mx-auto">
+                    <span className="inline-block mx-auto bg-white rounded-3xl px-3 font-avertabold">
+                      VIDEO #1
+                    </span>
+                  </h3>
+                  <div className="flex items-center justify-center text-white my-8 md:my-5 xl:mt-10 xl:mb-12">
+                  <input
+                        type="checkbox"
+                        id="Text-To-Speech1"
+                        name="Text-To-Speech1"
+                        onChange={(e) => setChecked(e.target.checked)}
+                        checked={checked}
+                      />
+                      <label
+                        htmlFor="Text-To-Speech1"
+                        className="text-sm lg:text-[17px] font-averta ml-2 "
+                      >
+                        CLICK HERE - If you think this video is Text-To-Speech
+                      </label>
+                  </div>
+                  <div className="rounded-xl overflow-hidden">
+                    <iframe
+                      width="100%"
+                      height="auto"
+                      src="https://www.youtube.com/embed/CswqvjHmxb0?si=b4_yQE0kMkbvS0JE"
+                      title="YouTube video player"
+                      frameBorder={0}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen=""
+                      className="h-32 md:h-64"
+                    />
+                  </div>
+                </div>
+                <div className="md:flex justify-center mt-5 hidden">
+                  <img src="images/connection2.webp" alt="connection" />
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 flex flex-col hover:scale-105 transition-all mt-10 md:mt-0">
+                <div className="">
+                  <div className="flex flex-col bg-checkbg2 px-12 md:px-7 xl:px-[70px] bg-size-full bg-no-repeat bg-100%">
+                    <h3 className="text-xl rounded-3xl bg-gradient-to-r from-[#00bdff] to-[#8179ff] flex -mt-5 w-[120px] py-0.5 mx-auto">
+                      <span className="inline-block mx-auto bg-white rounded-3xl px-3 font-avertabold">
+                        VIDEO #2
+                      </span>
+                    </h3>
+                    <div className="flex items-center text-white my-8 md:my-5 xl:mt-10 xl:mb-12">
+                      <input
+                        type="checkbox"
+                        id="Text-To-Speech"
+                        name="Text-To-Speech"
+                        onChange={(e) => setChecked(e.target.checked)}
+                        checked={checked}
+
+                      />
+                      <label
+                        htmlFor="Text-To-Speech"
+                        className="text-sm lg:text-[17px] font-averta ml-2 "
+                      >
+                        CLICK HERE - If you think this video is Text-To-Speech
+                      </label>
+                    </div>
+                    <div className="rounded-xl overflow-hidden">
+                      <iframe
+                        width="100%"
+                        height="auto"
+                        src="https://www.youtube.com/embed/CswqvjHmxb0?si=b4_yQE0kMkbvS0JE"
+                        title="YouTube video player"
+                        frameBorder={0}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen=""
+                        className="h-32 md:h-64 "
+                      />
+                    </div>
+                  </div>
+                  <div className="md:flex justify-center mt-5 hidden">
+                    <img src="images/connection3.webp" alt="connection" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-center mt-20 md:mt-0">
+              <button className="bg-[#1fb123] text-white rounded-[30px] py-4 px-8 text-sm md:text-lg font-avertabold -mt-8 shadow-[0_20px_35px_0px_rgba(25,140,52,0.29)]">
+                Cast Your Vote To Find Out The Answer ??
+              </button>
+            </div>
+          </div>
+          {checked && (
+            <div
+              className="fixed inset-0 flex items-center justify-center z-50"
+              id="myModal4"
+              role="dialog"
+              aria-labelledby="exampleModalScrollableTitle1"
+              style={{ display: "block" }}
+            >
+              <div
+                className="fixed inset-0 bg-black bg-opacity-50"
+                aria-hidden="true"
+              ></div>
+
+              <div className="bg-white rounded-lg shadow-lg  mx-4 max-w-xl w-full fixed top-[30%] left-[30%]">
+                <button
+                  aria-label="Click To Play Audio"
+                  type="button"
+                  className="absolute top-4 right-4 p-2"
+                  data-dismiss="modal"
+                  onClick={()=>{setChecked(false)}}
+                >
+                  <img
+                    src="images/crosspop.webp"
+                    className="w-2 h-2"
+                    alt="close"
+                  />
+                </button>
+
+                <div className="p-6 text-center my-12">
+                  <img
+                    src="images/check.webp"
+                    className="mx-auto mb-4"
+                    alt="check"
+                  />
+                  <h1 className="text-5xl font-bold text-gray-900 mb-2">
+                    YES!
+                  </h1>
+                  <h2 className="text-3xl text-gray-600 mb-2">
+                    Your Answer is CORRECT!
+                  </h2>
+                  <h2 className="text-3xl text-gray-600 mb-4">
+                    <strong>BUT both videos had an AI voiceover.</strong>
+                  </h2>
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    <strong>Video #1</strong> had a voiceover generated with a
+                    traditional text to speech software… And{" "}
+                    <strong>Video #2</strong> had a voiceover generated with a
+                    REVOICER. <br />
+                    <strong>This is how good REVOICER is!</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="section5 bg-[#050038] rounded-3xl w-[96%] mx-auto py-8 lg:py-24 mt-8 lg:mt-28">
+        <div className="container mx-auto">
+          <h3 className="text-center text-white text-lg">
+            Saath Tabla Allows Anyone, Regardless Of Musical Skills, To Create…
+            The most realistic tabla accompaniment possible!
+          </h3>
+          <h4 className="text-center text-2xl lg:text-[44px] font-averta  text-white mt-5">
+            Saath Tabla Is{" "}
+            <span className="relative">
+              <span className="absolute -bottom-1">
+                <img src="images/voiceline2.webp" alt="" />
+              </span>
+              Perfect For:
+            </span>
+          </h4>
+        </div>
+
+        <div className="card-wrapper pt-10 lg:pt-24 flex gap-5 justify-center flex-wrap  mx-auto cursor-pointer">
+          {cards.map((card, index) => (
+            <div
+              key={index}
+              className={` py-5 px-5 rounded-xl overflow-hidden transition-width duration-500 h-[373px] ${
+                expandedCard === index ? "w-[525px]" : "w-[300px] md:w-[210px] "
+              }`}
+              style={{ backgroundColor: card.bgColor }}
+              onClick={() => toggleExpand(index)}
+            >
+              <div className="flex flex-col">
+                <div className="flex flex-row items-center mb-4">
+                  <img
+                    src={` ${
+                      expandedCard === index
+                        ? "images/pushicon2.webp"
+                        : "images/playicon2.webp"
+                    }`}
+                    alt="play Icon"
+                    style={{ cursor: "pointer" }}
+                  />
+                  {expandedCard !== index && (
+                    <img
+                      src={card.waveimage}
+                      alt="music Icon"
+                      style={{
+                        cursor: "pointer",
+                        height: "45px",
+                        padding: "2px",
+                        marginTop: "3px",
+                      }}
+                      className="bg-transparent select-none"
+                    />
+                  )}
+                  <audio
+                    ref={(el) => (playerRef.current[index] = el)}
+                    src={card.audioFile}
+                  />
+                  {expandedCard === index && (
+                    <div className="pl-3 flex items-center">
+                      {bars.map((bar, index) => (
+                        <div
+                          key={index}
+                          className="bar-line"
+                          style={{
+                            left: `${bar.left}px`,
+                            animationDuration: `${bar.animationDuration}ms`,
+                            height: `${bar.height}px`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-6">
+                  <div className="text-center">
+                    <h2
+                      className={`text-center text-white font-avertabold text-[19px]  mb-3 ${
+                        expandedCard === index
+                          ? "w-auto whitespace-nowrap"
+                          : "w-auto"
+                      } `}
+                    >
+                      {card.title}
+                    </h2>
+                    <p
+                      className={`text-[#d6d5fc] text-center ${
+                        expandedCard === index ? "hidden" : ""
+                      }`}
+                    >
+                      {card.description.slice(0, 100)}....
+                    </p>
+                  </div>
+                  <p
+                    className={`text-white ${
+                      expandedCard === index ? "block" : "hidden"
+                    }`}
+                  >
+                    {card.expandedDescription}
+                  </p>
+                </div>
+                <img src={card.image} alt="img" className="-ml-10 -mb-10"  />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="section6 py-8 md:py-14 lg:py-28">
+        <div className="container mx-auto">
+          <div className="flex flex-col justify-center gap-4 font-averta">
+            <h2 className="text-2xl lg:text-[44px] text-center font-avertabold">
+              <span className="relative">
+                <span className="absolute -bottom-1">
+                  <img src="images/voiceline5.webp" alt="" />
+                </span>
+                Saath Tabla
+              </span>{" "}
+              Vs Other Apps
+            </h2>
+            <p className="text-xm lg:text-lg text-center max-w-[590px] mx-auto font-averta text-[#1f2024]">
+              Saath Tabla is not meant to replace live tabla players. Instead,
+              it provides a scalable, time-saving, and cost-efficient
+              alternative.
+            </p>
+          </div>
+          <div className="flex flex-col md:flex-row gap-5 lg:gap-20 mt-8 lg:mt-24 justify-center">
+            <div className="bg-[#fdeef0] p-5 lg:py-14 lg:px-16 rounded-[10px] max-w-[529px] relative before:hidden md:before:block before:absolute before:w-[141px] before:h-[155px] before:-left-10 before:-top-9 before:-z-10 before:bg-dottedbg">
+              <h3 className="flex justify-start text-xl lg:text-[28px] font-avertabold items-center">
+                Traditional Tabla Apps
+                <span className="pl-2">
+                  <img src="images/smily1.webp" alt="Smily" />
+                </span>
+              </h3>
+              <ul className="space-y-3 mt-8">
+                <li className="flex items-start">
+                  <span className="pt-1.5">
+                    <img src="images/checklist1.webp" alt="close" />
+                  </span>
+                  <span className="inline-block pl-2 text-[#665658] text-lg">
+                    Liner, Robotic and Emotionless
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="pt-1.5">
+                    <img src="images/checklist1.webp" alt="close" />
+                  </span>
+                  <span className="inline-block pl-2 text-[#665658] text-lg">
+                    Limited Patterns
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="pt-1.5">
+                    <img src="images/checklist1.webp" alt="close" />
+                  </span>
+                  <span className="inline-block pl-2 text-[#665658] text-lg">
+                    Static and Repetitive
+                  </span>
+                </li>
+              </ul>
+              <div className="text-center mt-10">
+                <img src="images/humanimg1.webp" alt="cartoon" />
+              </div>
+            </div>
+            <div className="bg-[#e6f6e9] p-5 lg:py-14 lg:px-16 rounded-[10px] max-w-[529px] relative before:hidden md:before:block  before:absolute before:w-[141px] before:h-[155px] before:-right-10 before:-bottom-9 before:-z-10 before:bg-dottedbg">
+              <h3 className="flex justify-start   text-xl lg:text-[28px]  font-avertabold items-center">
+                With Saath Tabla App
+                <span className="pl-2">
+                  <img src="images/smily2.webp" alt="Smily" />
+                </span>
+              </h3>
+              <ul className="space-y-4 mt-8">
+                <li className="flex items-start">
+                  <span className="pt-1.5">
+                    <img src="images/checklist2.webp" alt="close" />
+                  </span>
+                  <span className="inline-block pl-2 text-[#665658] text-lg">
+                    Realistic and Emotional
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="pt-1.5">
+                    <img src="images/checklist2.webp" alt="close" />
+                  </span>
+                  <span className="inline-block pl-2 text-[#665658] text-lg">
+                    Multiple Patterns and Customization
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="pt-1.5">
+                    <img src="images/checklist2.webp" alt="close" />
+                  </span>
+                  <span className="inline-block pl-2 text-[#665658] text-lg">
+                    Dynamic and Adaptive
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="shrink-0 pt-1.5">
+                    <img src="images/checklist2.webp" alt="close" />
+                  </span>
+                  <span className="inline-block pl-2 text-[#665658] text-lg">
+                    AI Accompaniment with Saath Tabla 😃
+                  </span>
+                </li>
+              </ul>
+              <div className="text-center mt-10">
+                <img src="images/Bookimage.png" alt="cartoon" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="section7 py-8 md:py-14 lg:pt-28 lg:pb-10 relative">
+        <div className="relative flex">
+          <div className="hidden md:block">
+            <img
+              src="images/bgicon2.webp"
+              className="absolute top-[27%] left-[18%] topbottom"
+              alt=""
+            />
+            <img
+              src="images/bgicon3.webp"
+              className="absolute top-[75%] left-[9.5%] leftright"
+              alt=""
+            />
+            <img
+              src="images/bgicon4.webp"
+              alt=""
+              className="absolute -top-[20%] left-[8%] leftright"
+            />
+            <img
+              src="images/bgicon5.webp"
+              className="absolute top-[3%]  left-0 topbottom"
+              alt=""
+            />
+          </div>
+          <div className="text-center mx-auto">
+            <h2 className="center font-avertabold max-w-[640px] mx-auto text-base md:text-xl">
+              Tabla Accompaniment Sounds Linear and Emotionless… RIGHT?
+            </h2>
+            <h3 className="text-2xl lg:text-[54px] text-center font-avertabold max-w-[770px] mx-auto mt-2 lg:mt-5 ">
+              Not so with Saath Tabla!
+            </h3>
+            <p className="max-w-[750px] mx-auto text-[#646876] text-sm lg:text-lg mt-2 lg:mt-5 px-3">
+              The first AI Tabla App to display real human emotions. Truly human
+              emotions in every loop generated, bringing life into your practice
+              and performances.
+            </p>
+            <h4 className="text-center font-caveat mt-5 lg:mt-12 text-xl lg:text-[38px] text-[#78797e]">
+              Saath Tabla Just Got Emotional!
+            </h4>
+          </div>
+          <div className="hidden md:block">
+            <img
+              src="images/bgicon6.webp"
+              className="absolute top-[90%] right-[5%] topbottom"
+              alt=""
+            />
+            <img
+              src="images/bgicon10.webp"
+              className="absolute top-[50%]  right-[0] topbottom"
+              alt=""
+            />
+            <img
+              src="images/bgicon8.webp"
+              className="absolute top-[30%] right-[17%] leftright"
+              alt=""
+            />
+            <img
+              src="images/bgicon9.webp"
+              alt=""
+              className="absolute -top-[20%] right-[8%] leftright"
+            />
+          </div>
+        </div>
+        <div className="max-w-[90%] mx-auto pt-24 overflow-hidden">
+          <Slider {...VoiceSettings}>
+            <div className="px-2 py-16">
+              <div className="">
+                <div className="w-full bg-[#f7f1fd] py-10 !px-5 mx-2 rounded-3xl">
+                  <div className="flex justify-center -mt-[90px]">
+                    <span className="inline-block ">
+                      <img
+                        src="images/kayla.png"
+                        alt="Kayla "
+                        className="!w-auto h-auto"
+                      />
+                    </span>
+                  </div>
+                  <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
+                    Kayla
+                    <span className="text-base text-[#8a78f0] font-averta">
+                      Female
+                    </span>
+                  </h2>
+                  <div className="mt-3">
+                    <img
+                      src="images/star.webp"
+                      className="!w-auto h-auto mx-auto"
+                      alt=""
+                    />
+                  </div>
+                  <div className="flex gap-3 flex-wrap mt-8 justify-center">
+                    {[
+                      "Normal",
+                      "Friendly",
+                      "Hopeful",
+                      "Unfriendly",
+                      "Cheerful",
+                      "Sad",
+                      "Excited",
+                      "Angry",
+                      "Terrified",
+                      "Shouting",
+                      "Whispering",
+                    ].map((label) => (
+                      <div className="w-[47%] md:w-auto" key={label}>
+                        <div
+                          className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out"
+                          data-src="kayla-normal.mp3"
+                        >
+                          <div className="flex items-center rounded-[8px]">
+                            <div
+                              className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center"
+                              title=""
+                            >
+                              <div
+                                aria-label="Click to play text to voice audio"
+                                className="grid place-content-center"
+                              >
+                                <img
+                                  src="images/play-icon.png"
+                                  alt="Play"
+                                  className="w-2 h-2"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                            {label}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="px-2 py-16">
+              <div className="w-full bg-[#e8f5fd] py-10 px-5 mx-2 rounded-3xl">
+                <div className="">
+                  <div className="flex justify-center">
+                    <span className="inline-block -mt-[90px]">
+                      <img
+                        src="images/axel.png"
+                        alt="Kayla "
+                        className="!w-auto h-auto"
+                      />
+                    </span>
+                  </div>
+                  <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
+                    Axel
+                    <span className="text-base text-[#33b4f3] font-averta">
+                      Male
+                    </span>
+                  </h2>
+                  <div className="mt-3">
+                    <img
+                      src="images/star.webp"
+                      className="!w-auto h-auto mx-auto"
+                      alt=""
+
+                    />
+                  </div>
+                  <div className="flex gap-3 flex-wrap mt-8 justify-center">
+                    {[
+                      "Normal",
+                      "Friendly",
+                      "Hopeful",
+                      "Unfriendly",
+                      "Cheerful",
+                      "Sad",
+                      "Excited",
+                      "Angry",
+                      "Terrified",
+                      "Shouting",
+                      "Whispering",
+                    ].map((label) => (
+                      <div className="w-[47%] md:w-auto" key={label}>
+                        <div
+                          className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out"
+                          data-src="kayla-normal.mp3"
+                        >
+                          <div className="flex items-center rounded-[8px]">
+                            <div
+                              className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center"
+                              title=""
+                            >
+                              <div
+                                aria-label="Click to play text to voice audio"
+                                className="grid place-content-center"
+                              >
+                                <img
+                                  src="images/play-icon.png"
+                                  alt="Play"
+                                  className="w-2 h-2"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                            {label}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="px-2 py-16">
+              <div className="w-full bg-[#e4fae5] py-10 px-5 mx-2 rounded-3xl">
+                <div className="">
+                  <div className="flex justify-center">
+                    <span className="inline-block -mt-[90px]">
+                      <img
+                        src="images/zoey.png"
+                        alt="Kayla "
+                        className="!w-auto h-auto"
+                      />
+                    </span>
+                  </div>
+                  <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
+                    Zoey
+                    <span className="text-base text-[#34ac38] font-averta">
+                      Female
+                    </span>
+                  </h2>
+                  <div className="mt-3">
+                    <img
+                      src="images/star.webp"
+                      className="!w-auto h-auto mx-auto"
+                      alt=""
+
+                    />
+                  </div>
+                  <div className="flex gap-3 flex-wrap mt-8 justify-center">
+                    {[
+                      "Normal",
+                      "Friendly",
+                      "Hopeful",
+                      "Unfriendly",
+                      "Cheerful",
+                      "Sad",
+                      "Excited",
+                      "Angry",
+                      "Terrified",
+                      "Shouting",
+                      "Whispering",
+                    ].map((label) => (
+                      <div className="w-[47%] md:w-auto" key={label}>
+                        <div
+                          className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out"
+                          data-src="kayla-normal.mp3"
+                        >
+                          <div className="flex items-center rounded-[8px]">
+                            <div
+                              className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center"
+                              title=""
+                            >
+                              <div
+                                aria-label="Click to play text to voice audio"
+                                className="grid place-content-center"
+                              >
+                                <img
+                                  src="images/play-icon.png"
+                                  alt="Play"
+                                  className="w-2 h-2"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                            {label}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="px-2 py-16">
+              <div className="w-full bg-[#fdf1eb] py-10 px-5 mx-2 rounded-3xl">
+                <div className="">
+                  <div className="flex justify-center">
+                    <span className="inline-block -mt-[90px]">
+                      <img
+                        src="images/andrew.png"
+                        alt="Kayla "
+                        className="!w-auto h-auto"
+                      />
+                    </span>
+                  </div>
+                  <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
+                    Andrew
+                    <span className="text-base text-[#f38d5b] font-averta">
+                      Male
+                    </span>
+                  </h2>
+                  <div className="mt-3">
+                    <img
+                      src="images/star.webp"
+                      className="!w-auto h-auto mx-auto"
+                      alt=""
+                    />
+                  </div>
+                  <div className="flex gap-3 flex-wrap mt-8 justify-center">
+                    {[
+                      "Normal",
+                      "Friendly",
+                      "Hopeful",
+                      "Unfriendly",
+                      "Cheerful",
+                      "Sad",
+                      "Excited",
+                      "Angry",
+                      "Terrified",
+                      "Shouting",
+                      "Whispering",
+                    ].map((label) => (
+                      <div className="w-[47%] md:w-auto" key={label}>
+                        <div
+                          className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out"
+                          data-src="kayla-normal.mp3"
+                        >
+                          <div className="flex items-center rounded-[8px]">
+                            <div
+                              className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center"
+                              title=""
+                            >
+                              <div
+                                aria-label="Click to play text to voice audio"
+                                className="grid place-content-center"
+                              >
+                                <img
+                                  src="images/play-icon.png"
+                                  alt="Play"
+                                  className="w-2 h-2"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                            {label}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Slider>
+        </div>
+        {/* <div className="overflow-clip" id="texttospeech">
+      <Slider {...settings}>
+        <div className="item flex justify-between flex-col lg:flex-row gap-20 lg:gap-0">
+          <div className="w-full lg:w-[48%] bg-[#f7f1fd] py-10 px-5 rounded-3xl">
+            <div className="">
+              <div className="flex justify-center">
+                <span className="inline-block -mt-[90px]">
+                  <img src="images/zoey.png" alt="Kayla " className="!w-auto h-auto" />
+                </span>
+              </div>
+              <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
+                Kayla
+                <span className="text-base text-[#8a78f0] font-averta">Female</span>
+              </h2>
+              <div className="mt-3">
+                <img src="images/zoey.png" className="!w-auto h-auto mx-auto" />
+              </div>
+              <div className="flex gap-3 flex-wrap mt-8 justify-center">
+                {['Normal', 'Friendly', 'Hopeful', 'Unfriendly', 'Cheerful', 'Sad', 'Excited', 'Angry', 'Terrified', 'Shouting', 'Whispering'].map((label) => (
+                  <div className="w-[47%] md:w-auto" key={label}>
+                    <div className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out" data-src="kayla-normal.mp3">
+                      <div className="flex items-center rounded-[8px]">
+                        <div className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center" title="">
+                          <a href="/" aria-label="Click to play text to voice audio" className="grid place-content-center">
+                            <img src="images/zoey.png" alt="Play" className="w-2 h-2" />
+                          </a>
+                        </div>
+                      </div>
+                      <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">{label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="w-full lg:w-[48%] bg-[#e8f5fd] py-10 px-5 rounded-3xl">
+            <div className="">
+              <div className="flex justify-center">
+                <span className="inline-block -mt-[90px]">
+                  <img src="images/zoey.png" alt="Axel " className="!w-auto h-auto" />
+                </span>
+              </div>
+              <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
+                Axel
+                <span className="text-base text-[#33b4f3] font-averta">Male</span>
+              </h2>
+              <div className="mt-3">
+                <img src="images/zoey.png" className="!w-auto h-auto mx-auto" />
+              </div>
+              <div className="flex gap-3 flex-wrap mt-8 justify-center">
+                {['Normal', 'Friendly', 'Hopeful', 'Unfriendly', 'Shouting', 'Whispering'].map((label) => (
+                  <div className="w-[47%] md:w-auto" key={label}>
+                    <div className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out" data-src="axel-normal.mp3">
+                      <div className="flex items-center rounded-[8px]">
+                        <div className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center" title="">
+                          <a href="#" aria-label="Click to play text to voice audio" className="grid place-content-center">
+                            <img src="images/zoey.png" alt="Play" className="w-2 h-2" />
+                          </a>
+                        </div>
+                      </div>
+                      <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">{label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Slider>
+    </div> */}
+      </div>
+      <div className="section8 bg-section8-bg rounded-3xl w-[96%] mx-auto py-6 lg:py-24 mt-6 lg:mt-20">
+        <div className="container mx-auto">
+          <h3 className="text-center text-2xl lg:text-[44px] font-averta font-avertabold text-white mt-5 leading-snug">
+            Saath Tabla has a Rhythm for Every Performance
+          </h3>
+          <h4 className="text-center text-white max-w-[670px] mx-auto mt-0 lg:mt-5 text-sm lg:text-xl">
+            Whether you’re looking for traditional classical rhythms or
+            something more contemporary, there is a perfect tabla loop waiting
+            for you in Saath Tabla.
+          </h4>
+          <h5 className="text-center text-[#a09cc5] font-caveat text-xl lg:text-[38px] mt-2 lg:mt-16">
+            Experience our HUMAN-sounding tabla loops first hand:
+          </h5>
+          <div className="card-wrapper flex flex-wrap gap-5 mt-5 justify-center">
+           
+        
+            <Artists />
+            
+          </div>
+        
+        </div>
+      </div>
+      <div className="section9 py-8 lg:py-28  px-4">
+        <h2 className="text-center text-[24px] lg:text-[44px] font-averta font-avertabold text-black mt-5">
+          Saath Tabla Unmatched Features
+        </h2>
+        <p className="text-center text-[#646876] max-w-[700px] mx-auto mt-5 text-sm lg:text-xl ">
+          Our emotion-based AI accompaniment engine and the other features
+          listed below make SAATH TABLA the best AI tabla app you can find!{" "}
+          <span className="uppercase block font-avertabold">PERIOD!</span>
+        </p>
+        <div className="mt-5 lg:mt-20 flex flex-wrap">
+          <div className="w-full lg:w-1/2 flex justify-between py-[4%] pl-[7%] pr-[4%] bg-[#fff6df] flex-col xl:flex-row xl:items-start">
+            <div className="w-full xl:w-1/2 flex justify-center lg:justify-end">
+              <img src="images/revoicerimg1.webp" alt="Recovering " />
+            </div>
+            <div className="w-full xl:w-1/2 text-center lg:text-right mt-2">
+              <h3 className="text-[#5a4b24] text-xl lg:text-[38px]  font-avertabold lg:mb-0 leading-snug">
+                Real Tabla Loops by Maestros
+              </h3>
+              <p className="lg:text-xl text-[#5a4b24] font-poppins text-sm ">
+                The most amazing collection of AI text to speech voices online!
+                We feature both male, female and kid voices.
+              </p>
+            </div>
+          </div>
+          <div className="w-full lg:w-1/2 flex justify-between py-[4%] pl-[4%] pr-[7%] bg-[#ffe7eb] flex-col xl:flex-row xl:items-start">
+            <div className="w-full xl:w-1/2 text-left">
+              <h3 className="text-[#5e353c] text-xl lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 text-center lg:text-left leading-snug">
+                Customizable Tanpura with Dual Octaves
+              </h3>
+              <p className="lg:text-xl text-[#5a4b24] font-poppins xl:max-w-[300px] text-sm text-center lg:text-left">
+                Speaking faster… slower… shouting or even whispering, no problem
+                with Revoicer voice synthesizer AI engine!
+              </p>
+            </div>
+            <div className="w-full xl:w-1/2 order-first xl:order-none flex justify-center lg:justify-start">
+              <img src="images/revoicerimg2.webp" alt="Recovering " />
+            </div>
+          </div>
+          <div className="w-full lg:w-1/2 flex justify-between py-[4%] pl-[7%] pr-[4%] bg-[#ddfede] flex-col xl:flex-row xl:items-start">
+            <div className="w-full xl:w-1/2 flex justify-center lg:justify-end">
+              <img src="images/revoicerimg3.webp" alt="Recovering " />
+            </div>
+            <div className="w-full xl:w-1/2 lg:text-right text-center">
+              <h3 className="text-[#5a4b24] text-xl lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 leading-snug">
+                Swarmandal with 120+ Raagas
+              </h3>
+              <p className="text-sm lg:text-xl text-[#5a4b24] font-poppins">
+                Sometimes you need a serious tone other times you need a more
+                joyful tone for your AI voice overs, with Revoicer you can
+                generate the most natural sounding text to human voice!
+              </p>
+            </div>
+          </div>
+          <div className="w-full lg:w-1/2 flex justify-between py-[4%] pl-[4%] pr-[7%] bg-[#d5fdf9] flex-col xl:flex-row xl:items-start">
+            <div className="w-full xl:w-1/2 text-center lg:text-left ">
+              <h3 className="text-[#2b4b48] text-xl lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 leading-snug">
+                Pitch and Tempo Control
+              </h3>
+              <p className="lg:text-xl text-[#445957] font-poppins xl:max-w-[300px]  text-sm lg:text-left ">
+                German, French, Dutch, Spanish, Portuguese, Italian, Arabic,
+                Mandarin, Danish, English, Icelandic, Japanese, Korean,
+                Norwegian, Polish, Romanian, Russian, Swedish, Turkish, Welsh,
+                etc
+              </p>
+            </div>
+            <div className="w-full xl:w-1/2 order-first xl:order-none  flex justify-center lg:justify-start mb-4 xl:mb-0">
+              <img src="images/revoicerimg4.webp" alt="Recovering " />
+            </div>
+          </div>
+          <div className="w-full lg:w-1/2 flex justify-between py-[4%] pl-[7%] pr-[4%] bg-[#e6e9fb1] flex-col xl:flex-row xl:items-start">
+            <div className="w-full xl:w-1/2 flex justify-center lg:justify-end ">
+              <img src="images/revoicerimg5.webp" alt="Recovering " />
+            </div>
+            <div className="w-full xl:w-1/2 text-center lg:text-right">
+              <h3 className="text-[#373a50] text-xl lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 leading-snug ">
+                AI-Based Sequence Generation
+              </h3>
+              <p className="lg:text-xl text-sm text-[#4e5163] font-poppins text-center lg:text-right">
+                Revoicer features multiple English accents, such as: american,
+                uk, canadian, australian, indian, south africa and ireland
+                accent. Use these accents to add an extra layer of uniqueness to
+                your text to speech voice overs. UK accent can be used to convey
+                sophistication, while Australian accent is great for sociability
+                and adventure videos
+              </p>
+            </div>
+          </div>
+          <div className="w-full lg:w-1/2 flex xl:justify-between py-[4%] pl-[4%] pr-[7%] bg-[#fae0ff] flex-col xl:flex-row xl:items-start">
+            <div className="w-full xl:w-1/2 text-left md:mt-4">
+              <h3 className="text-[#4f3c53] text-lg lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 text-center lg:text-left leading-snug">
+                Available for Android and iOS
+              </h3>
+              <p className="lg:text-xl text-[#604e63] font-poppins xl:max-w-[300px] text-center lg:text-left text-sm mx-auto">
+                Emphasize specific words or even whole phrases with only a few
+                clicks. Add pauses of varying lengths to your voiceovers to
+                build tension and to set the right tone.
+              </p>
+            </div>
+            <div className="w-full xl:w-1/2 order-first xl:order-none flex justify-center lg:justify-start">
+              <img src="images/revoicerimg6.webp" alt="Recovering " />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="section10 pt-0 pb-10 lg:py-20">
+        <h2 className="max-w-[670px] mx-auto text-center text-2xl lg:text-[44px] text-black font-averta font-avertabold leading-normal">
+          Listen to some SAMPLE VIDEOS <br />
+          created with SAATH TABLA:
+        </h2>
+        <div className="container mx-auto">
+          <div className="mt-20 relative before:absolute before:content-[''] before:h-full before:w-0 before:left-1/2 before:top-0 before:border before:border-dashed before:border-[#bcbfd2] before:hidden lg:before:block">
+            <div className="flex justify-between flex-wrap lg:flex-row">
+              <span className="w-6 h-6 bg-[#7688ea] rounded-full absolute -top-1 left-0 right-0 mx-auto bg-opacity-30 grid place-content-center">
+                <span className="w-4 h-4 bg-[#7688ea] rounded-full inline-block" />
+              </span>
+              <div className="w-full lg:w-[45%]">
+                <div className="w-full mx-auto mt-12 relative">
+                  <Slider {...settings}>
+                    <div className="item">
+                      <div className="rounded-2xl p-5 lg:p-11 bg-[#7688ea]">
+                        <iframe
+                          width="100%"
+                          height="auto"
+                          className="rounded-2xl"
+                          src="https://www.youtube.com/embed/ITfj9YPFco8?si=o7urQib9aZ4BK2jw"
+                          title="YouTube video player"
+                          frameBorder={0}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen=""
+                        />
+                      </div>
+                      <div className="flex items-center px-11 pt-5 gap-5">
+                        <div className="">
+                          <img src="images/sales1axel.png" alt="Axel" />
+                        </div>
+                        <div className="">
+                          <h3 className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                            Sales Videos
+                          </h3>
+                          <p className="text-[#8a93a8] text-base">Axel</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="item">
+                      <div className="rounded-2xl p-5 lg:p-11 bg-[#7688ea]">
+                        <iframe
+                          width="100%"
+                          height="auto"
+                          className="rounded-2xl"
+                          src="https://www.youtube.com/embed/ITfj9YPFco8?si=o7urQib9aZ4BK2jw"
+                          title="YouTube video player"
+                          frameBorder={0}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen=""
+                        />
+                      </div>
+                      <div className="flex items-center px-11 pt-5 gap-5">
+                        <div className="">
+                          <img src="images/sales1axel.png" alt="Axel" />
+                        </div>
+                        <div className="">
+                          <h3 className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                            Sales Videos
+                          </h3>
+                          <p className="text-[#8a93a8] text-base">Axel</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Slider>
+                </div>
+              </div>
+              <div className="w-full lg:w-[45%] mt-5 lg:mt-0">
+                <h3 className="text-xl lg:text-[28px] font-avertabold mb-0 lg:mb-5 text-center lg:text-left ">
+                  Practice Sessions
+                </h3>
+                <div className="text-[#8a93a8] text-base space-y-5  mx-auto lg:text-left">
+                  <p className="text-center lg:text-left">
+                    Perfect accompaniment for your daily practice.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between pt-10 lg:pt-32 relative flex-wrap lg:flex-row">
+              <span className="w-6 h-6 bg-[#7cd7c6] rounded-full absolute top-32 left-0 right-0 mx-auto bg-opacity-30 grid place-content-center">
+                <span className="w-4 h-4 bg-[#7cd7c6] rounded-full inline-block" />
+              </span>
+              <div className="w-full lg:w-[45%] text-center lg:text-right ">
+                <h3 className="text-xl lg:text-[28px] font-avertabold lg:mb-5 mb-0">
+                  Performance Videos
+                </h3>
+                <div className="text-[#8a93a8] text-base space-y-5  mx-auto">
+                  <p>
+                    Bring your public performances to life with realistic tabla
+                    sounds.
+                  </p>
+                </div>
+              </div>
+              <div className="w-full lg:w-[45%] order-first lg:order-none">
+                <Slider {...settings}>
+                  <div className="item">
+                    <div className="rounded-2xl p-5 lg:p-11 bg-[#7cd7c6]">
+                      <iframe
+                        width="100%"
+                        height="auto"
+                        className="rounded-xl"
+                        src="https://www.youtube.com/embed/9KPneEMybS4?si=CLKKywrxyzibLElL"
+                        title="YouTube video player"
+                        frameBorder={0}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen=""
+                      />
+                    </div>
+                    <div className="flex items-center p-5 lg:p-11 pt-5 gap-5">
+                      <div>
+                        <img src="images/sales2mirai.png" alt="Mirai" />
+                      </div>
+                      <div>
+                        <h3 className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                          Support/Help Videos
+                        </h3>
+                        <p className="text-[#8a93a8] text-base">
+                          Grace - Australian Accent
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="item">
+                    <div className="rounded-2xl p-5 lg:p-11 bg-[#7cd7c6]">
+                      <iframe
+                        width="100%"
+                        height="auto"
+                        className="rounded-xl"
+                        src="https://www.youtube.com/embed/9KPneEMybS4?si=CLKKywrxyzibLElL"
+                        title="YouTube video player"
+                        frameBorder={0}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen=""
+                      />
+                    </div>
+                    <div className="flex items-center px-11 pt-5 gap-5">
+                      <div>
+                        <img src="images/sales2mirai.png" alt="Mirai" />
+                      </div>
+                      <div>
+                        <h3 className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                          Support/Help Videos
+                        </h3>
+                        <p className="text-[#8a93a8] text-base">
+                          Grace - Australian Accent
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Slider>
+              </div>
+            </div>
+            <div className="flex justify-between pt-5 lg:pt-32 relative flex-wrap lg:flex-row">
+              <span className="w-6 h-6 bg-[#fedb5b] rounded-full absolute top-32 left-0 right-0 mx-auto bg-opacity-30 grid place-content-center">
+                <span className="w-4 h-4 bg-[#fedb5b] rounded-full inline-block" />
+              </span>
+              <div className="w-full lg:w-[45%]">
+                <Slider {...settings}>
+                  <div className="item">
+                    <div className="rounded-2xl p-5 lg:p-11 bg-[#fedb5b]">
+                      <iframe
+                        width="100%"
+                        height="auto"
+                        className="rounded-2xl"
+                        src="https://www.youtube.com/embed/DvwXkFgfyck?si=R0no_aBkz3tAtHlY"
+                        title="YouTube video player"
+                        frameBorder={0}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen=""
+                      />
+                    </div>
+                    <div className="flex items-center p-5 lg:p-11 pt-5 gap-5">
+                      <div>
+                        <img src="images/sales2penelope.png" alt="Axel" />
+                      </div>
+                      <div>
+                        <h3 className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                          School Lessons
+                        </h3>
+                        <p className="text-[#8a93a8] text-base">Penelope</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="item">
+                    <div className="rounded-2xl p-11 bg-[#fedb5b]">
+                      <iframe
+                        width="100%"
+                        height="auto"
+                        className="rounded-2xl"
+                        src="https://www.youtube.com/embed/DvwXkFgfyck?si=R0no_aBkz3tAtHlY"
+                        title="YouTube video player"
+                        frameBorder={0}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen=""
+                      />
+                    </div>
+                    <div className="flex items-center px-11 pt-5 gap-5">
+                      <div>
+                        <img src="images/sales2penelope.png" alt="Axel" />
+                      </div>
+                      <div>
+                        <h3 className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                          School Lessons
+                        </h3>
+                        <p className="text-[#8a93a8] text-base">Penelope</p>
+                      </div>
+                    </div>
+                  </div>
+                </Slider>
+              </div>
+              <div className="w-full lg:w-[45%]">
+                <h3 className="text-lg lg:text-[28px] font-avertabold mb-0 lg:mb-5 text-center lg:text-left">
+                  Teaching Sessions
+                </h3>
+                <div className="text-[#8a93a8] text-base space-y-5  mx-auto lg:mr-auto w-full text-center lg:text-left">
+                  <p>
+                    Enhance your music lessons with professional accompaniment.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between pt-5 lg:pt-32 lg:pt-0 relative flex-wrap lg:flex-wrap ">
+              <span className="w-6 h-6 bg-[#fe7394] rounded-full absolute top-32 left-0 right-0 mx-auto bg-opacity-30 grid place-content-center">
+                <span className="w-4 h-4 bg-[#fe7394] rounded-full inline-block" />
+              </span>
+              <div className="w-full lg:w-[45%] text-center lg:text-right mt-5">
+                <h3 className="text-lg lg:text-[28px] font-avertabold mb-0 lg:mb-5 text-center lg:text-right">
+                  Social Media Content
+                </h3>
+                <div className="text-[#8a93a8] text-base space-y-5  mx-auto">
+                  <p>
+                    Create engaging social media content with authentic tabla
+                    sounds.
+                  </p>
+                </div>
+              </div>
+              <div className="w-full lg:w-[45%] order-first lg:order-none">
+                <Slider {...settings}>
+                  <div className="item">
+                    <div className="rounded-2xl p-5 lg:p-11 bg-[#fe7394]">
+                      <iframe
+                        width="100%"
+                        height="auto"
+                        className="rounded-xl"
+                        src="https://www.youtube.com/embed/PwDwZADtbGo?si=YiVwpCKTZWf7du07"
+                        title="YouTube video player"
+                        frameBorder={0}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen=""
+                      />
+                    </div>
+                    <div className="flex items-center px-11 pt-5 gap-5">
+                      <div>
+                        <img src="images/sales2mirai.png" alt="Mirai" />
+                      </div>
+                      <div>
+                        <h3 className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                          TV Commercials
+                        </h3>
+                        <p className="text-[#8a93a8] text-base">
+                          TV Commercials Noah
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="item">
+                    <div className="rounded-2xl p-5 lg:p-11 bg-[#fe7394]">
+                      <iframe
+                        width="100%"
+                        height="auto"
+                        className="rounded-xl"
+                        src="https://www.youtube.com/embed/PwDwZADtbGo?si=YiVwpCKTZWf7du07"
+                        title="YouTube video player"
+                        frameBorder={0}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen=""
+                      />
+                    </div>
+                    <div className="flex items-center px-11 pt-5 gap-5">
+                      <div>
+                        <img src="images/sales2mirai.png" alt="Mirai" />
+                      </div>
+                      <div>
+                        <h3 className="font-avertabold text-[#1f2024] text-sm lg:text-base">
+                          TV Commercials
+                        </h3>
+                        <p className="text-[#8a93a8] text-base">
+                          TV Commercials Noah
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Slider>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="section11 mt-24">
+        <div className="w-[96%] bg-section11-bg bg-no-repeat mx-auto pb-24 bg-cover p-4">
+          <h3 className="text-[29px] lg:text-[56px] text-[#1f2024] py-4 lg:py-16 text-center ">
+            “Robotic Tabla Sounds Are A Thing Of The Past!”
+          </h3>
+          <div className=" mx-auto max-w-[610px] mx-auto ">
+            <div className="bg-section12-bg bg-100% bg-no-repeat flex md:py-24 justify-center pt-4 lg:py-16 flex-col items-center bg-100% md:bg-auto md:bg-center">
+              <img
+                src="images/moneybackLogo.webp"
+                alt="moneybackimg"
+                className="w-auto mb-8"
+              />
+              <h3 className="text-lg lg:text-[30px] text-center font-averta text-white font-avertabold">
+                Free Trial Available
+              </h3>
+            </div>
+            <div className="mt-10">
+              <h3 className="text-center text-[#1f2024] max-w-[520px] mx-auto text-base lg:text-[26px] font-avertabold">
+                No Other App Is Producing Better Natural Sounding Tabla
+                Accompaniment!
+              </h3>
+            </div>
+            <div className="space-y-5 text-center max-w-[800px] text-[#646876] mt-10">
+              <p>
+                We’re 100% confident in its ability to do what we’re promising
+                you, that we’re gonna make this an Easy No-Brainer.!
+              </p>
+              <p>
+                <b>Free Trial Plan:</b>
+                <br />
+                We offer a free trial plan. Use the fully functional app and
+                then decide to purchase. After purchase, cancellation and
+                refunds are allowed as per the policy listed on our website.
+              </p>
+              <p>
+                “We’re going to make this a complete RISK-FREE DECISION for you!
+                If you try Saath Tabla and don’t like it, we will refund all
+                your money as per our refund policy listed on our website!"
+              </p>
+              <p>additional material if needed</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="ByNow" className="section12  bg-section14-bg pt-24 pb-24">
+        <ul className="flex justify-center gap-3 md:gap-5 flex-wrap lg:flex-row">
+          <li className="w-2/5 md:w-auto grid place-content-center">
+            <img src="images/planicon1.webp" 
+            alt=""
+            />
+          </li>
+          <li className="w-2/5 md:w-auto grid place-content-center">
+            <img src="images/planicon2.webp" 
+            alt=""
+            />
+          </li>
+          <li className="w-2/5 md:w-auto grid place-content-center">
+            <img src="images/planicon3.webp" 
+            alt=""
+            />
+          </li>
+          <li className="w-2/5 md:w-auto grid place-content-center">
+            <img src="images/planicon4.webp" 
+            alt=""
+            />
+          </li>
+        </ul>
+        <div className="w-[96%] px-4 lg:px-12 mx-auto max-w-[419px] mx-auto mt-16 bg-playbg-bg bg-no-repeat border border-[#4dbbfa] rounded-[20px] bg-white ">
+          <div className="py-12 px-0 relative">
+            <div className="max-w-full">
+              <p className="text-white font-averta text-lg bg-gradient-to-r from-[#48befa] to-[#b872ff] w-32 mx-auto text-center absolute -top-4 left-0 right-0 mx-auto rounded-lg">
+                Most Popular
+              </p>
+              <h3 className="text-3xl mt-0 lg:mt-10 font-avertabold mb-2 text-center lg:text-left">
+                Saath Tabla APP
+              </h3>
+              <h4 className="text-[#949494] text-2xl mb-3 text-center lg:text-left line-through">
+                Regular: {planDetails && planDetails?.originalPrice}
+              </h4>
+              <h5 className="text-[24px] font-avertabold text-center text-center lg:text-left">
+                <span className="text-[40px]">
+                  {planDetails && planDetails?.discountedPrice}
+                </span>{" "}
+                ONE TIME PAYMENT
+              </h5>
+              <ul className="space-y-3 mt-10 font-averta  text-lg">
+                <li className="flex gap-2 items-center">
+                  <span>
+                    <img src="images/checklist3.webp" alt="" />
+                  </span>
+                  NO MONTHLY FEES
+                </li>
+                <li className="flex gap-2 items-center">
+                  <span>
+                    <img src="images/checklist3.webp" alt="" />
+                  </span>
+                  100+ ragas included
+                </li>
+                <li className="flex gap-2 items-center">
+                  <span>
+                    <img src="images/checklist3.webp" alt=""/>
+                  </span>
+                  12+ tals included
+                </li>
+                <li className="flex gap-2 items-center">
+                  <span>
+                    <img src="images/checklist3.webp" alt=""/>
+                  </span>
+                  Volume and Panning Feature available
+                </li>
+                <li className="flex gap-2 items-center">
+                  <span>
+                    <img src="images/checklist3.webp" alt="" />
+                  </span>
+                  AI based loop sequencing
+                </li>
+                <li className="flex gap-2 items-center">
+                  <span>
+                    <img src="images/checklist3.webp" alt=""/>
+                  </span>
+                  Free Updates and Support
+                </li>
+              </ul>
+              <div className="max-w-[330px] flex flex-col justify-center gap-2">
+                <Link
+                  onClick={() => {
+                    handlePayment();
+                  }}
+                  className="bg-[#46bffa] hover:bg-[#26a5e2] text-white flex justify-center rounded-2xl font-avertabold text-center items-center uppercase text-base md:text-xl w-full h-16 mt-10 shadow-[0px_20px_25px_0px_rgb(206_200_233_/_60%)] hover:shadow-none"
+                >
+                  Buy Now
+                </Link>
+              </div>
+              {isModalOpen && (
+                <ProPlanModal
+                  setIsModalOpen={setIsModalOpen}
+                  membershipdetails={membershipdetails}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      <section className="section14 mt-[6%] ">
+        <div className="container mx-auto">
+          <h2 className="text-2xl text-center mb-16">
+            <b>Real Results from Real Customers</b> - Read Their Stories:
+          </h2>
+          <div className="flex flex-wrap space-y-5">
+            <div className="w-full md:w-1/2">
+              <img src="images/testi1.jpg" alt="" />
+            </div>
+            <div className="w-full md:w-1/2">
+              <img src="images/testi2.jpg" alt=""/>
+            </div>
+            <div className="w-full md:w-1/2">
+              <img src="images/testi3.jpg"alt="" />
+            </div>
+            <div className="w-full md:w-1/2">
+              <img src="images/testi4.jpg"alt="" />
+            </div>
+            <div className="w-full md:w-1/2">
+              <img src="images/testi5.jpg"alt="" />
+            </div>
+            <div className="w-full md:w-1/2">
+              <img src="images/testi7.jpg"alt="" />
+            </div>
+          </div>
+        </div>
+      </section>
+      <div className="section13 bg-faq-bg py-8 lg:py-28 max-w-[94%] mx-auto bg-no-repeat relative mt-8 lg:mt-48 px-8">
+        <h2 className="font-avertabold font-averta text-center text-2xl lg:text-[44px] text-white">
+          Frequently Asked Questions
+        </h2>
+        {/* <div className="mt-5 lg:mt-20 max-w-[1140px] mx-auto text-white font-averta text-[29px]">
+      <div id="accordion">
+        <div className="border-b border-[#130d54] py-3 lg:py-7">
+          <h4 className="accordion-toggle active relative py-3 text-lg lg:text-2xl">
+            Perfect for Students:
+          </h4>
+          <div className="accordion-content default text-base font-averta text-[#a09cc5] mt-5">
+            <p>
+              Vocal and instrumental students can enhance their practice
+              sessions with realistic तबला accompaniment.
+            </p>
+          </div>
+        </div>
+        <div className="border-b border-[#130d54] py-3 lg:py-7">
+          <h4 className="accordion-toggle relative py-3 font-averta text-lg lg:text-2xl">
+            Ideal for Artists?
+          </h4>
+          <div className="accordion-content text-base font-averta text-[#a09cc5]">
+            <p>
+              Performing and budding artists can use Saath Tabla for live
+              performances and personal recording sessions.
+            </p>
+          </div>
+        </div>
+        <div className="border-b border-[#130d54] py-3 lg:py-7">
+          <h4 className="accordion-toggle relative py-3 font-averta text-lg lg:text-2xl">
+            Great for Creators
+          </h4>
+          <div className="accordion-content text-base font-averta text-[#a09cc5]">
+            <p>
+              Music composers, YouTubers, and Ghazal singers can create
+              professional content with authentic तबला sounds.
+            </p>
+          </div>
+        </div>
+        <div className="border-b border-[#130d54] py-3 lg:py-7">
+          <h4 className="accordion-toggle relative py-3 font-averta text-lg lg:text-2xl">
+            Essential for Teachers
+          </h4>
+          <div className="accordion-content text-base font-averta text-[#a09cc5]">
+            <p>
+              Music teachers can provide engaging lessons with professional तबला
+              accompaniment.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div> */}
+        <div className="mt-5 lg:mt-20 max-w-[1140px] mx-auto text-white font-averta text-[29px]">
+          <div id="accordion">
+            {accordionData.map((item, index) => (
+              <>
+                <div
+                  className="border-b border-[#130d54] py-3 lg:py-7"
+                  key={index}
+                >
+                  <h4
+                    className={`accordion-toggle relative py-3 font-averta text-lg lg:text-2xl mt-5 ${
+                      activeIndex === index ? "active" : ""
+                    }`}
+                    onClick={() => handleToggle(index)}
+                  >
+                    {item.title}
+                  </h4>
+                  <div
+                    className="accordion-content text-base font-averta text-[#a09cc5]"
+                    style={{
+                      display: activeIndex === index ? "block" : "none",
+                    }}
+                  >
+                    <p>{item.content}</p>
+                  </div>
+                </div>
+                {/* ================================= */}
+                {/* <div className="border-b border-[#130d54] py-3 lg:py-7">
+          <h4 className="accordion-toggle active relative py-3 text-lg lg:text-2xl">
+            Perfect for Students:
+          </h4>
+          <div className="accordion-content default text-base font-averta text-[#a09cc5] mt-5">
+            <p>
+              Vocal and instrumental students can enhance their practice
+              sessions with realistic तबला accompaniment.
+            </p>
+          </div>
+        </div> */}
+              </>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="section15 py-10 lg:py-24">
+        <div className="container mx-auto">
+          <h2 className="text-2xl lg:text-[44px] font-averta text-center w-full ">
+            Grab Access To Revoicer Today…
+          </h2>
+          <h3 className="text-2xl font-averta text-center w-full">
+            No Monthly Fees – One Time Payment
+          </h3>
+          {/* <div className="star-rating justify-center flex flex-col">
+            <div className="flex justify-center mt-3 flex-col lg:flex-row items-center gap-1">
+              <div className="">
+                <img src="images/people.png" alt="People " />
+              </div>
+              <div className="rating-wrapper flex items-center">
+                <div className="">
+                  <div className="star-icon flex justify-end items-center gap-1">
+                    <i className="fa fa-star text-amber-400" />
+                    <i className="fa fa-star text-amber-400" />
+                    <i className="fa fa-star text-amber-400" />
+                    <i className="fa fa-star text-amber-400" />
+                    <i className="fa fa-star text-amber-400" />
+                    <span className="font-averta">5.0</span>
+                  </div>
+                  <h3 className="font-averta text-sm">From 3,000+ reviews</h3>
+                </div>
+              </div>
+            </div>
+          </div> */}
+          <div className="flex justify-center flex-col gap-2">
+            <h2
+              onClick={scrollToBuyNow}
+              className=" cursor-pointer w-100% lg:w-[500px] mx-auto my-2 text-center bg-[#1fb6ff] text-white text-nowrap text-xl lg:text-[26px] inline-block px-14 rounded-[40px] py-3 font-avertabold shadow-[0px_20px_35px_0px_rgb(31_182_255_/_29%)] hover-shadow-none"
+            >
+              Get Revoicer Right Now!
+            </h2>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </>
+  );
+}
+
+export default Home;
+

@@ -1,0 +1,316 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @layer utilities { */
+#texttospeech {
+  overflow: visible !important;
+}
+#texttospeech .owl-stage-outer {
+  overflow: visible !important;
+}
+.content-auto {
+  content-visibility: auto;
+}
+.play-icon-wrapper:before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  display: block;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0.2;
+}
+@keyframes pulse {
+  from {
+    transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-50%) translateY(-50%) translateZ(0)
+      scale(1.05);
+    opacity: 0.3;
+  }
+}
+.pulse {
+  animation-name: pulse;
+}
+
+@keyframes leftright {
+0% { transform: translatex(0); }
+100% { transform: translatex(-10px); }
+}
+.leftright {
+animation: leftright 1s infinite  alternate;
+}
+@keyframes topbottom {
+0% { transform: translateY(0); }
+100% { transform: translateY(-10px); }
+}
+.topbottom {
+animation: topbottom 1s infinite  alternate;
+}
+
+.b4:before {
+  background: #48b0e2;
+  animation: pulse 2000ms ease-out infinite;
+}
+.b3:before {
+  background: #aae04d;
+  animation: pulse 2000ms ease-out infinite;
+}
+.b2:before {
+  background: #ffcd68;
+  animation: pulse 2000ms ease-out infinite;
+}
+.b1:before {
+  background: #e04d68;
+  animation: pulse 2000ms ease-out infinite;
+}
+.play-box:hover .play-icon-wrapper {
+  transform: scale(1.1);
+  transition: 0.5s all ease-in-out;
+}
+#testimonial .owl-nav {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  width: 120%;
+  top: 115px;
+  left: -10%;
+}
+#testimonial .owl-nav span {
+  font-size: 40px;
+  color: #9188ec;
+}
+.owl-dots {
+  display: none;
+}
+.accordion-toggle {
+  cursor: pointer;
+}
+.accordion-content {
+  display: none;
+}
+.accordion-content.default {
+  display: block;
+}
+div {
+  padding: 0;
+  margin: 0;
+}
+p {
+  padding: 0;
+  margin: 0;
+}
+h4 {
+  padding: 0;
+  margin: 0;
+}
+.section13 .active {
+  color: rgb(255, 255, 255);
+}
+.section13 .accordion-toggle:before {
+  content: "\f054";
+  font-family: FontAwesome;
+  width: 25px;
+  display: inline-block;
+  text-align: center;
+  position: absolute;
+  right: 0;
+  font-weight: normal;
+  font-size: 18px;
+}
+.section13 .active:before {
+  content: "\f078";
+  font-family: FontAwesome;
+  width: 25px;
+  display: inline-block;
+  text-align: center;
+  font-weight: normal;
+  font-size: 18px;
+}
+.section13 {
+  background-size: 100% 100%;
+}
+.owl-nav {
+  position: absolute;
+  width: 100%;
+  height: 10px;
+  top: 45%;
+  display: flex;
+  justify-content: space-between;
+}
+.owl-nav .owl-prev,
+.owl-nav .owl-next {
+  width: 40px;
+  height: 40px;
+  background: #fff !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -15px;
+}
+.owl-nav .owl-next {
+  margin-right: -15px;
+}
+.owl-nav .owl-prev span {
+  color: #78797e;
+  font-size: 40px;
+  margin-top: -12px;
+  margin-left: 9px;
+}
+.owl-nav .owl-next span {
+  color: #78797e;
+  font-size: 40px;
+  margin-top: -12px;
+  margin-right: 9px;
+}
+.section10 iframe{
+  height: 315px;
+}
+@media(max-width:991px){
+  .owl-nav {
+
+top: 35%;
+
+}
+#testimonial .owl-nav {
+width: 100%;
+top: 115px;
+left: 0;
+}
+}
+@media(max-width:767px){
+  #testimonial .owl-nav {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    width: 20%;
+    top: 155px;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+.section10 iframe{
+  height: auto;
+}
+.owl-nav {
+
+top: 30%;
+
+}
+}
+.bar-line {
+position: relative;
+width: 2px;
+background-color: #ffffff6c;
+animation: wave 500ms linear infinite alternate; /* Adjust animation speed here */
+}
+
+@keyframes wave {
+0% {
+  transform: scaleY(1);
+}
+100% {
+  transform: scaleY(0.4); /* Adjust the scale factor for the wave effect */
+}
+}
+
+
+@font-face {
+  font-family: "Averta Standard";
+  src: url("/public/fonts/AvertaStandard-Regular.eot");
+  src: url("/public/fonts/AvertaStandard-Regular.eot?#iefix")
+      format("embedded-opentype"),
+    url("/public/fonts/AvertaStandard-Regular.woff2") format("woff2"),
+    url("/public/fonts/AvertaStandard-Regular.woff") format("woff"),
+    url("/public/fonts/AvertaStandard-Regular.ttf") format("truetype"),
+    url("/public/fonts/AvertaStandard-Regular.svg#AvertaStandard-Regular")
+      format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "AvertaStd";
+  src: url("/public/fonts/AvertaStd-Bold.eot");
+  src: url("/public/fonts/AvertaStd-Bold.eot?#iefix")
+      format("embedded-opentype"),
+    url("/public/fonts/AvertaStd-Bold.woff2") format("woff2"),
+    url("/public/fonts/AvertaStd-Bold.woff") format("woff"),
+    url("/public/fonts/AvertaStd-Bold.ttf") format("truetype"),
+    url("/public/fonts/AvertaStd-Bold.svg#AvertaStd-Bold") format("svg");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* @font-face {
+  font-family: "Averta Standard";
+  src: url("/fonts/AvertaStandard-Regular.eot");
+  src: url("/fonts/AvertaStandard-Regular.eot?#iefix") format("embedded-opentype"),
+       url("/fonts/AvertaStandard-Regular.woff2") format("woff2"),
+       url("/fonts/AvertaStandard-Regular.woff") format("woff"),
+       url("/fonts/AvertaStandard-Regular.ttf") format("truetype"),
+       url("/fonts/AvertaStandard-Regular.svg#AvertaStandard-Regular") format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AvertaStd";
+  src: url("/fonts/AvertaStd-Bold.eot");
+  src: url("/fonts/AvertaStd-Bold.eot?#iefix") format("embedded-opentype"),
+       url("/fonts/AvertaStd-Bold.woff2") format("woff2"),
+       url("/fonts/AvertaStd-Bold.woff") format("woff"),
+       url("/fonts/AvertaStd-Bold.ttf") format("truetype"),
+       url("/fonts/AvertaStd-Bold.svg#AvertaStd-Bold") format("svg");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+ */
+/* Apply the fonts globally or to specific elements */
+body {
+  font-family: "Averta Standard", sans-serif;
+}
+
+.slick-next {
+  right: 25px;
+  top: 45%;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.svg-wrapper svg path {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: draw 2s forwards;
+}
+
+.svg-wrapper svg path:nth-of-type(2) {
+  animation-delay: 1s;
+}
+
+.triangle {
+  display: inline-block;
+  vertical-align: middle;
+}
+.triangle-5 {
+  border-top: solid 15px #c81e32;
+  border-left: solid 28px transparent;
+  border-right: solid 28px transparent;
+}
