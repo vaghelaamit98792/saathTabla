@@ -23,23 +23,27 @@ export const accordionData = [
   ];
   
 export const Durt = [
-    {
-      image: "images/fluit.png",
-      audio: "music/durt/durt1.mp3",
-    },
-    {
-      image: "images/tabla.png",
-      audio: "music/durt/durt2.mp3",
-    },
-    {
-      image: "images/dhol.png",
-      audio: "music/durt/durt3.mp3",
-    },
-    {
-      image: "images/dholak.png",
-      audio: "music/durt/durt4.mp3",
-    },
-  ];
+  {
+    label: "fluit",
+    image: "images/fluit.png",
+    audio: "music/durt/durt1.mp3",
+  },
+  {
+    label: "tabla",
+    image: "images/tabla.png",
+    audio: "music/durt/durt2.mp3",
+  },
+  {
+    label: "dhol",
+    image: "images/dhol.png",
+    audio: "music/durt/durt3.mp3",
+  },
+  {
+    label: "dholak",
+    image: "images/dholak.png",
+    audio: "music/durt/durt4.mp3",
+  },
+];
   
 export const artists = [
     {
@@ -161,6 +165,41 @@ export const cards = [
     },
   ];
   
+export const KaylaAudiolabels = [
+    { label: "Normal", path: "music/Aalap/Aalap - Saath - Promo Flute Madhuvanti.mp3" },
+    { label: "Friendly", path: "music/Aalap/Aalap - Saath - Promo Flute Puriya Dhanashri.mp3" },
+    { label: "Hopeful", path: "music/madhya/madhya1.mp3" },
+    { label: "Unfriendly", path: "music/madhya/madhya2.mp3" },
+    { label: "Cheerful", path: "music/durt/durt1.mp3" },
+    { label: "Sad", path: "music/durt/durt2.mp3" },
+    { label: "Excited", path: "music/Light/Light - Saath - Promo - Santoor - Light.mp3" },
+    // { label: "Angry", path: "path/to/angry.mp3" },
+    // { label: "Terrified", path: "path/to/terrified.mp3" },
+    // { label: "Shouting", path: "path/to/shouting.mp3" },
+    // { label: "Whispering", path: "path/to/whispering.mp3" },
+  ]
+
+export const AxelAudiolabels = [
+    { label: "Normal", path: "music/Aalap/Aalap - Saath - Promo Flute Sarang.mp3" },
+    { label: "Friendly", path: "music/Aalap/Aalap - Saath - Promo Sitar Bhatiyar.mp3" },
+    { label: "Hopeful", path: "music/madhya/madhya3.mp3" },
+    { label: "Unfriendly", path: "music/madhya/madhya4.mp3" },
+    { label: "Cheerful", path: "music/durt/durt3.mp3" },
+    { label: "Sad", path: "music/durt/durt4.mp3" },
+    { label: "Excited", path: "music/Light/Light - Saath - Promo Flute Pahadi.mp3" },
+  ]
+  
+export const ZoeyAudiolabels = [
+    { label: "Normal", path: "music/Aalap/Aalap - Saath - Promo Sitar Darbari.mp3" },
+    { label: "Friendly", path: "music/Aalap/Aalap - Saath - Promo Sitar MiyaMalhar.mp3" },
+    { label: "Hopeful", path: "music/madhya/madhya5.mp3" },
+    { label: "Unfriendly", path: "music/madhya/madhya6.mp3" },
+    { label: "Cheerful", path: "music/durt/durt1.mp3" },
+    { label: "Sad", path: "music/durt/durt2.mp3" },
+    { label: "Excited", path: "music/Light/Light - Saath - Promo Sitar Light.mp3" },
+      ];
+
+
 export  const bars = [
     { left: 1, animationDuration: 841, height: 50 },
     { left: 3, animationDuration: 851, height: 30 },

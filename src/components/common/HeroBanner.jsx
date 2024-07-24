@@ -11,7 +11,7 @@ function HeroBanner() {
             </h1>
           </div>
           <div className="mt-2.5 lg:mt-8 font-poppins flex justify-center">
-            <h2 className="text-center max-w-[1200px] text-2xl lg:text-[46px] leading-tight font-medium text-[#151b2b]">
+            <h2 className="text-center max-w-[1200px] text-xl md:text-[46px] leading-tight font-medium text-[#151b2b]">
               Say Goodbye to Liner and
               <span className="font-avertabold leading-tight relative">
                 <span className="absolute bottom-0">

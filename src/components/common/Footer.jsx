@@ -11,18 +11,18 @@ function Footer() {
                 <img src="images/logo.png" alt="Logo" className="w-24" />
                 Saath Studio
               </div>
-              <h4 className="text-[18px] lg:text-[10px] mt-3">DISCLAIMER</h4>
-              <p className="text-[18px] lg:text-[10px] mt-3">
+              <h4 className="text-[10px]  mt-3">DISCLAIMER</h4>
+              <p className="text-[10px]  mt-3 text-justify">
                 Google: We are not affiliated, associated, authorized, endorsed
                 by, or in any way officially connected with Google, or any of
                 its subsidiaries or its affiliates.
               </p>
-              <p className="text-[18px] lg:text-[10px] mt-3">
+              <p className="text-[10px] mt-3 text-justify">
                 Facebook This site is not a part of the Facebook website or
                 Facebook INC. Additionally, this site is NOT endorsed by
                 Facebook in ANY WAY. FACEBOOK is a trademark of Facebook INC.
               </p>
-              <p className="text-[18px] lg:text-[10px]">
+              <p className="text-[10px] text-justify">
                 We are not affiliated, associated, authorized, endorsed by, or
                 in any way officially connected with Google, or any of its
                 subsidiaries or its affiliates. This site is not a part of the

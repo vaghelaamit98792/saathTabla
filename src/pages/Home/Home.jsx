@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -10,28 +10,25 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import ProPlanModal from "../../components/common/ProPlanModal";
 import { Spinner } from "../../components/common/Spinner";
-import Artists from "../../components/common/Artists";
+import Artists from "../../components/Artists";
 import { accordionData, bars, cards, Durt } from "../../data/data";
+import {  GetMembershipdetailsApi, PlaceUserOrderAndroidApi, RozerpayKeyId, RozerpaySrcLink } from "../../constant";
+import VoteAnswerAlert from "../../components/common/VoteAnsweralert";
+import TablaAccompaniment from "../../components/TablaAccompaniment";
+import useAudioPlayer from "../../hooks/useAudioPlayer";
 
 function Home() {
   const [activeIndex, setActiveIndex] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playingIndex, setPlayingIndex] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [expandedCard, setExpandedCard] = useState(null);
   const [planDetails, setPlanDetails] = useState(null);
   const [membershipdetails, setMembershipdetails] = useState(null)
   const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ setPaymentStatus] = useState('');
   const [checked, setChecked] = useState(false)
-console.log(checked,"checked");
-  // const navigate = useNavigate();
 
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.src = RozerpaySrcLink;
     script.async = true;
     document.body.appendChild(script);
 
@@ -39,6 +36,7 @@ console.log(checked,"checked");
       document.body.removeChild(script);
     };
   }, []);
+  const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayer();
 
   const settings = {
     dots: true,
@@ -49,44 +47,6 @@ console.log(checked,"checked");
     autoplay: true,
     autoplaySpeed: 3000,
   };
-  const VoiceSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 2,
-    slidesToScroll: 2,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    responsive: [
-      {
-        breakpoint: 1024, // For tablets and large screens
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
-          infinite: true,
-          dots: true
-        }
-      },
-      {
-        breakpoint: 768, // For small tablets
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: true,
-          dots: true
-        }
-      },
-      {
-        breakpoint: 480, // For mobile devices
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: true,
-          dots: true
-        }
-      }
-    ]
-  };
   
   const handleToggle = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -96,63 +56,12 @@ console.log(checked,"checked");
     document.getElementById("ByNow").scrollIntoView({ behavior: "smooth" });
   };
 
-  const audioRefs = useRef([]);
-
-  const handlePlayPause = (index) => {
-    const currentAudio = audioRefs.current[index];
-    console.log("currentAudio", currentAudio);
-    if (currentAudio) {
-      if (isPlaying && playingIndex === index) {
-        currentAudio.pause();
-        setIsPlaying(false);
-        setPlayingIndex(null);
-      } else {
-        audioRefs.current.forEach((audio, i) => {
-          if (audio && i !== index) {
-            audio.pause();
-          }
-        });
-        currentAudio.play();
-        setIsPlaying(true);
-        setPlayingIndex(index);
-      }
-    } else {
-      console.error("Audio element is not available.");
-    }
-  };
-
-  const handleAudioEnd = () => {
-    setIsPlaying(false);
-    setPlayingIndex(null);
-  };
-
-
-  const playerRef = useRef([]);
-
-  const toggleExpand = (index) => {
-    const newIndex = expandedCard === index ? null : index;
-    setExpandedCard(newIndex);
-    setIsExpanded(newIndex !== null);
-  };
-
-  useEffect(() => {
-    playerRef.current.forEach((audio, index) => {
-      if (audio) {
-        if (index === expandedCard && isExpanded) {
-          audio.play();
-        } else {
-          audio.pause();
-          audio.currentTime = 0;
-        }
-      }
-    });
-  }, [isExpanded, expandedCard]);
-
   useEffect(() => {
     const fetchMembershipDetails = async () => {
+      setLoading(true);
       try {
         const response = await axios.post(
-          'https://www.gr8masters.com/SaathStudioAPI/api/V2/getMembershipdetails.php',
+          GetMembershipdetailsApi,
           new URLSearchParams({
             api_key: 'nK<uJ@Tk8&$B#-xq-?#}',
             membership_id: "6",
@@ -195,7 +104,7 @@ console.log(checked,"checked");
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.src = RozerpaySrcLink ;
       script.onload = () => {
         resolve(true);
       };
@@ -214,13 +123,13 @@ console.log(checked,"checked");
       return;
     }
     const formData = new URLSearchParams();
-    formData.append('api_key', 'rzp_test_NXzv1Lax34llQA');
+    formData.append('api_key', RozerpayKeyId);
     formData.append('userid', user.userid);
     formData.append('membership_id', membershipdetails?.membership_id);
     formData.append('order_amount', membershipdetails?.web_discountedprice_inr);
     formData.append('order_remark', membershipdetails.level_name);
     formData.append('payment_mode', 'razorpay');
-    const createOrderResponse = await fetch('https://www.gr8masters.com/SaathStudioAPI/api/V2/placeUserOrderAndroid.php', {
+    const createOrderResponse = await fetch(PlaceUserOrderAndroidApi, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -232,9 +141,8 @@ console.log(checked,"checked");
     const { order_id } = await createOrderResponse.json();
 
     const options = {
-      key: "rzp_test_akPojIRzoH7wjG",
+      key: RozerpayKeyId ,
       amount: parseFloat(membershipdetails.web_discountedprice_inr) * 100, // Convert to paise
-      // amount: membershipdetails.web_discountedprice_inr, // Convert to paise
       currency: 'INR',
       name: user.username,
       description: 'Test Transaction',
@@ -277,11 +185,11 @@ console.log(checked,"checked");
       <HeroBanner />
       <div className="section2 pt-10">
         <div className="container mx-auto">
-          <h2 className="text-2xl lg:text-[34px] font-avertabold text-center">
+          <h2 className="text-xl md:text-[34px] font-avertabold text-center">
             Tabla Accompaniment Just Got{" "}
             <span className="relative ">
               <span className="absolute -bottom-0.5">
-                <img src="images/voiceline2.webp" className="hidden lg:block" alt="" />
+                <img src="images/voiceline2.webp" className=" lg:block" alt="" />
               </span>
               Real
             </span>
@@ -311,7 +219,7 @@ console.log(checked,"checked");
             <div className="flex flex-wrap justify-center lg:w-3/4 xl:2/4 w-full mx-auto ">
               {Durt.map((instrument, index) => (
                 <div
-                  className="w-1/2 lg:w-40 play-box flex justify-center mb-10 lg:mb-0"
+                  className="w-1/2 sm:w-40 play-box flex justify-center mb-10 lg:mb-0"
                   key={index}
                 >
                   <div
@@ -331,12 +239,12 @@ console.log(checked,"checked");
                       <div className="play-icon absolute -translate-x-2/4 -translate-y-2/4 text-center left-14 top-[55%]">
                         <button
                           className="playPauseButton"
-                          onClick={() => handlePlayPause(index)}
+                          onClick={() => handlePlayPause(instrument.audio,`${index}_${instrument.label}`)}
                         >
                           <img
                             className="playPauseIcon"
                             src={
-                              isPlaying && playingIndex === index
+                              isPlaying && playingIndex === `${index}_${instrument.label}`
                                 ? "images/pause.png"
                                 : "images/play.png"
                             }
@@ -346,15 +254,7 @@ console.log(checked,"checked");
                       </div>
                     </div>
                   </div>
-                  <audio
-                    className="audioPlayer"
-                    src={instrument.audio}
-                    ref={(el) => {
-                      audioRefs.current[index] = el;
-                    }}
-                    onEnded={handleAudioEnd}
-                  />
-                </div>
+                  </div>
               ))}
             </div>
           </div>
@@ -475,10 +375,10 @@ console.log(checked,"checked");
               <div className="box-icon-wrapper shrink-0">
                 <img src="images/voiceicon5.webp" alt="" />
               </div>
-              <div className="box-text pl-3 max-w-64">
-                <h4 className="font-averta text-[19px] xl:text-lg">
+              <div className="box-text pl-3 max-w-64 ">
+                <h4 className="font-averta text-[19px] xl:text-lg whitespace-normal">
                   Volume Mixer and
-                  <span className="font-avertabold">Pitch/Tempo</span>
+                  <div className="font-avertabold">Pitch/Tempo</div>
                   Control
                 </h4>
               </div>
@@ -613,58 +513,7 @@ console.log(checked,"checked");
             </div>
           </div>
           {checked && (
-            <div
-              className="fixed inset-0 flex items-center justify-center z-50"
-              id="myModal4"
-              role="dialog"
-              aria-labelledby="exampleModalScrollableTitle1"
-              style={{ display: "block" }}
-            >
-              <div
-                className="fixed inset-0 bg-black bg-opacity-50"
-                aria-hidden="true"
-              ></div>
-
-              <div className="bg-white rounded-lg shadow-lg  mx-4 max-w-xl w-full fixed top-[30%] left-[30%]">
-                <button
-                  aria-label="Click To Play Audio"
-                  type="button"
-                  className="absolute top-4 right-4 p-2"
-                  data-dismiss="modal"
-                  onClick={()=>{setChecked(false)}}
-                >
-                  <img
-                    src="images/crosspop.webp"
-                    className="w-2 h-2"
-                    alt="close"
-                  />
-                </button>
-
-                <div className="p-6 text-center my-12">
-                  <img
-                    src="images/check.webp"
-                    className="mx-auto mb-4"
-                    alt="check"
-                  />
-                  <h1 className="text-5xl font-bold text-gray-900 mb-2">
-                    YES!
-                  </h1>
-                  <h2 className="text-3xl text-gray-600 mb-2">
-                    Your Answer is CORRECT!
-                  </h2>
-                  <h2 className="text-3xl text-gray-600 mb-4">
-                    <strong>BUT both videos had an AI voiceover.</strong>
-                  </h2>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    <strong>Video #1</strong> had a voiceover generated with a
-                    traditional text to speech software… And{" "}
-                    <strong>Video #2</strong> had a voiceover generated with a
-                    REVOICER. <br />
-                    <strong>This is how good REVOICER is!</strong>
-                  </p>
-                </div>
-              </div>
-            </div>
+            <VoteAnswerAlert setChecked={setChecked}/>
           )}
         </div>
       </div>
@@ -690,23 +539,23 @@ console.log(checked,"checked");
             <div
               key={index}
               className={` py-5 px-5 rounded-xl overflow-hidden transition-width duration-500 h-[373px] ${
-                expandedCard === index ? "w-[525px]" : "w-[300px] md:w-[210px] "
+               isPlaying && playingIndex === `${index}_cards` ? "w-[525px]" : "w-[300px] md:w-[210px] "
               }`}
               style={{ backgroundColor: card.bgColor }}
-              onClick={() => toggleExpand(index)}
+              onClick={() => handlePlayPause(card.audioFile,`${index}_cards`)}
             >
               <div className="flex flex-col">
                 <div className="flex flex-row items-center mb-4">
                   <img
                     src={` ${
-                      expandedCard === index
+                      isPlaying && playingIndex === `${index}_cards`
                         ? "images/pushicon2.webp"
                         : "images/playicon2.webp"
                     }`}
                     alt="play Icon"
                     style={{ cursor: "pointer" }}
                   />
-                  {expandedCard !== index && (
+                  { playingIndex !== `${index}_cards` && (
                     <img
                       src={card.waveimage}
                       alt="music Icon"
@@ -719,11 +568,7 @@ console.log(checked,"checked");
                       className="bg-transparent select-none"
                     />
                   )}
-                  <audio
-                    ref={(el) => (playerRef.current[index] = el)}
-                    src={card.audioFile}
-                  />
-                  {expandedCard === index && (
+                 {isPlaying && playingIndex === `${index}_cards` && (
                     <div className="pl-3 flex items-center">
                       {bars.map((bar, index) => (
                         <div
@@ -743,7 +588,7 @@ console.log(checked,"checked");
                   <div className="text-center">
                     <h2
                       className={`text-center text-white font-avertabold text-[19px]  mb-3 ${
-                        expandedCard === index
+                        isPlaying && playingIndex === `${index}_cards`
                           ? "w-auto whitespace-nowrap"
                           : "w-auto"
                       } `}
@@ -752,7 +597,7 @@ console.log(checked,"checked");
                     </h2>
                     <p
                       className={`text-[#d6d5fc] text-center ${
-                        expandedCard === index ? "hidden" : ""
+                        isPlaying && playingIndex === `${index}_cards` ? "hidden" : ""
                       }`}
                     >
                       {card.description.slice(0, 100)}....
@@ -760,7 +605,7 @@ console.log(checked,"checked");
                   </div>
                   <p
                     className={`text-white ${
-                      expandedCard === index ? "block" : "hidden"
+                      isPlaying && playingIndex === `${index}_cards` ? "block" : "hidden"
                     }`}
                   >
                     {card.expandedDescription}
@@ -791,7 +636,7 @@ console.log(checked,"checked");
             </p>
           </div>
           <div className="flex flex-col md:flex-row gap-5 lg:gap-20 mt-8 lg:mt-24 justify-center">
-            <div className="bg-[#fdeef0] p-5 lg:py-14 lg:px-16 rounded-[10px] max-w-[529px] relative before:hidden md:before:block before:absolute before:w-[141px] before:h-[155px] before:-left-10 before:-top-9 before:-z-10 before:bg-dottedbg">
+            <div className="bg-[#fdeef0] w-full p-5 lg:py-14 lg:px-16 rounded-[10px] max-w-[529px] relative before:hidden md:before:block before:absolute before:w-[141px] before:h-[155px] before:-left-10 before:-top-9 before:-z-10 before:bg-dottedbg">
               <h3 className="flex justify-start text-xl lg:text-[28px] font-avertabold items-center">
                 Traditional Tabla Apps
                 <span className="pl-2">
@@ -828,7 +673,7 @@ console.log(checked,"checked");
                 <img src="images/humanimg1.webp" alt="cartoon" />
               </div>
             </div>
-            <div className="bg-[#e6f6e9] p-5 lg:py-14 lg:px-16 rounded-[10px] max-w-[529px] relative before:hidden md:before:block  before:absolute before:w-[141px] before:h-[155px] before:-right-10 before:-bottom-9 before:-z-10 before:bg-dottedbg">
+            <div className="bg-[#e6f6e9] w-full p-5 lg:py-14 lg:px-16 rounded-[10px] max-w-[529px] relative before:hidden md:before:block  before:absolute before:w-[141px] before:h-[155px] before:-right-10 before:-bottom-9 before:-z-10 before:bg-dottedbg">
               <h3 className="flex justify-start   text-xl lg:text-[28px]  font-avertabold items-center">
                 With Saath Tabla App
                 <span className="pl-2">
@@ -876,430 +721,7 @@ console.log(checked,"checked");
           </div>
         </div>
       </div>
-      <div className="section7 py-8 md:py-14 lg:pt-28 lg:pb-10 relative">
-        <div className="relative flex">
-          <div className="hidden md:block">
-            <img
-              src="images/bgicon2.webp"
-              className="absolute top-[27%] left-[18%] topbottom"
-              alt=""
-            />
-            <img
-              src="images/bgicon3.webp"
-              className="absolute top-[75%] left-[9.5%] leftright"
-              alt=""
-            />
-            <img
-              src="images/bgicon4.webp"
-              alt=""
-              className="absolute -top-[20%] left-[8%] leftright"
-            />
-            <img
-              src="images/bgicon5.webp"
-              className="absolute top-[3%]  left-0 topbottom"
-              alt=""
-            />
-          </div>
-          <div className="text-center mx-auto">
-            <h2 className="center font-avertabold max-w-[640px] mx-auto text-base md:text-xl">
-              Tabla Accompaniment Sounds Linear and Emotionless… RIGHT?
-            </h2>
-            <h3 className="text-2xl lg:text-[54px] text-center font-avertabold max-w-[770px] mx-auto mt-2 lg:mt-5 ">
-              Not so with Saath Tabla!
-            </h3>
-            <p className="max-w-[750px] mx-auto text-[#646876] text-sm lg:text-lg mt-2 lg:mt-5 px-3">
-              The first AI Tabla App to display real human emotions. Truly human
-              emotions in every loop generated, bringing life into your practice
-              and performances.
-            </p>
-            <h4 className="text-center font-caveat mt-5 lg:mt-12 text-xl lg:text-[38px] text-[#78797e]">
-              Saath Tabla Just Got Emotional!
-            </h4>
-          </div>
-          <div className="hidden md:block">
-            <img
-              src="images/bgicon6.webp"
-              className="absolute top-[90%] right-[5%] topbottom"
-              alt=""
-            />
-            <img
-              src="images/bgicon10.webp"
-              className="absolute top-[50%]  right-[0] topbottom"
-              alt=""
-            />
-            <img
-              src="images/bgicon8.webp"
-              className="absolute top-[30%] right-[17%] leftright"
-              alt=""
-            />
-            <img
-              src="images/bgicon9.webp"
-              alt=""
-              className="absolute -top-[20%] right-[8%] leftright"
-            />
-          </div>
-        </div>
-        <div className="max-w-[90%] mx-auto pt-24 overflow-hidden">
-          <Slider {...VoiceSettings}>
-            <div className="px-2 py-16">
-              <div className="">
-                <div className="w-full bg-[#f7f1fd] py-10 !px-5 mx-2 rounded-3xl">
-                  <div className="flex justify-center -mt-[90px]">
-                    <span className="inline-block ">
-                      <img
-                        src="images/kayla.png"
-                        alt="Kayla "
-                        className="!w-auto h-auto"
-                      />
-                    </span>
-                  </div>
-                  <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
-                    Kayla
-                    <span className="text-base text-[#8a78f0] font-averta">
-                      Female
-                    </span>
-                  </h2>
-                  <div className="mt-3">
-                    <img
-                      src="images/star.webp"
-                      className="!w-auto h-auto mx-auto"
-                      alt=""
-                    />
-                  </div>
-                  <div className="flex gap-3 flex-wrap mt-8 justify-center">
-                    {[
-                      "Normal",
-                      "Friendly",
-                      "Hopeful",
-                      "Unfriendly",
-                      "Cheerful",
-                      "Sad",
-                      "Excited",
-                      "Angry",
-                      "Terrified",
-                      "Shouting",
-                      "Whispering",
-                    ].map((label) => (
-                      <div className="w-[47%] md:w-auto" key={label}>
-                        <div
-                          className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out"
-                          data-src="kayla-normal.mp3"
-                        >
-                          <div className="flex items-center rounded-[8px]">
-                            <div
-                              className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center"
-                              title=""
-                            >
-                              <div
-                                aria-label="Click to play text to voice audio"
-                                className="grid place-content-center"
-                              >
-                                <img
-                                  src="images/play-icon.png"
-                                  alt="Play"
-                                  className="w-2 h-2"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">
-                            {label}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="px-2 py-16">
-              <div className="w-full bg-[#e8f5fd] py-10 px-5 mx-2 rounded-3xl">
-                <div className="">
-                  <div className="flex justify-center">
-                    <span className="inline-block -mt-[90px]">
-                      <img
-                        src="images/axel.png"
-                        alt="Kayla "
-                        className="!w-auto h-auto"
-                      />
-                    </span>
-                  </div>
-                  <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
-                    Axel
-                    <span className="text-base text-[#33b4f3] font-averta">
-                      Male
-                    </span>
-                  </h2>
-                  <div className="mt-3">
-                    <img
-                      src="images/star.webp"
-                      className="!w-auto h-auto mx-auto"
-                      alt=""
-
-                    />
-                  </div>
-                  <div className="flex gap-3 flex-wrap mt-8 justify-center">
-                    {[
-                      "Normal",
-                      "Friendly",
-                      "Hopeful",
-                      "Unfriendly",
-                      "Cheerful",
-                      "Sad",
-                      "Excited",
-                      "Angry",
-                      "Terrified",
-                      "Shouting",
-                      "Whispering",
-                    ].map((label) => (
-                      <div className="w-[47%] md:w-auto" key={label}>
-                        <div
-                          className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out"
-                          data-src="kayla-normal.mp3"
-                        >
-                          <div className="flex items-center rounded-[8px]">
-                            <div
-                              className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center"
-                              title=""
-                            >
-                              <div
-                                aria-label="Click to play text to voice audio"
-                                className="grid place-content-center"
-                              >
-                                <img
-                                  src="images/play-icon.png"
-                                  alt="Play"
-                                  className="w-2 h-2"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">
-                            {label}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="px-2 py-16">
-              <div className="w-full bg-[#e4fae5] py-10 px-5 mx-2 rounded-3xl">
-                <div className="">
-                  <div className="flex justify-center">
-                    <span className="inline-block -mt-[90px]">
-                      <img
-                        src="images/zoey.png"
-                        alt="Kayla "
-                        className="!w-auto h-auto"
-                      />
-                    </span>
-                  </div>
-                  <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
-                    Zoey
-                    <span className="text-base text-[#34ac38] font-averta">
-                      Female
-                    </span>
-                  </h2>
-                  <div className="mt-3">
-                    <img
-                      src="images/star.webp"
-                      className="!w-auto h-auto mx-auto"
-                      alt=""
-
-                    />
-                  </div>
-                  <div className="flex gap-3 flex-wrap mt-8 justify-center">
-                    {[
-                      "Normal",
-                      "Friendly",
-                      "Hopeful",
-                      "Unfriendly",
-                      "Cheerful",
-                      "Sad",
-                      "Excited",
-                      "Angry",
-                      "Terrified",
-                      "Shouting",
-                      "Whispering",
-                    ].map((label) => (
-                      <div className="w-[47%] md:w-auto" key={label}>
-                        <div
-                          className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out"
-                          data-src="kayla-normal.mp3"
-                        >
-                          <div className="flex items-center rounded-[8px]">
-                            <div
-                              className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center"
-                              title=""
-                            >
-                              <div
-                                aria-label="Click to play text to voice audio"
-                                className="grid place-content-center"
-                              >
-                                <img
-                                  src="images/play-icon.png"
-                                  alt="Play"
-                                  className="w-2 h-2"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">
-                            {label}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="px-2 py-16">
-              <div className="w-full bg-[#fdf1eb] py-10 px-5 mx-2 rounded-3xl">
-                <div className="">
-                  <div className="flex justify-center">
-                    <span className="inline-block -mt-[90px]">
-                      <img
-                        src="images/andrew.png"
-                        alt="Kayla "
-                        className="!w-auto h-auto"
-                      />
-                    </span>
-                  </div>
-                  <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
-                    Andrew
-                    <span className="text-base text-[#f38d5b] font-averta">
-                      Male
-                    </span>
-                  </h2>
-                  <div className="mt-3">
-                    <img
-                      src="images/star.webp"
-                      className="!w-auto h-auto mx-auto"
-                      alt=""
-                    />
-                  </div>
-                  <div className="flex gap-3 flex-wrap mt-8 justify-center">
-                    {[
-                      "Normal",
-                      "Friendly",
-                      "Hopeful",
-                      "Unfriendly",
-                      "Cheerful",
-                      "Sad",
-                      "Excited",
-                      "Angry",
-                      "Terrified",
-                      "Shouting",
-                      "Whispering",
-                    ].map((label) => (
-                      <div className="w-[47%] md:w-auto" key={label}>
-                        <div
-                          className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out"
-                          data-src="kayla-normal.mp3"
-                        >
-                          <div className="flex items-center rounded-[8px]">
-                            <div
-                              className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center"
-                              title=""
-                            >
-                              <div
-                                aria-label="Click to play text to voice audio"
-                                className="grid place-content-center"
-                              >
-                                <img
-                                  src="images/play-icon.png"
-                                  alt="Play"
-                                  className="w-2 h-2"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">
-                            {label}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Slider>
-        </div>
-        {/* <div className="overflow-clip" id="texttospeech">
-      <Slider {...settings}>
-        <div className="item flex justify-between flex-col lg:flex-row gap-20 lg:gap-0">
-          <div className="w-full lg:w-[48%] bg-[#f7f1fd] py-10 px-5 rounded-3xl">
-            <div className="">
-              <div className="flex justify-center">
-                <span className="inline-block -mt-[90px]">
-                  <img src="images/zoey.png" alt="Kayla " className="!w-auto h-auto" />
-                </span>
-              </div>
-              <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
-                Kayla
-                <span className="text-base text-[#8a78f0] font-averta">Female</span>
-              </h2>
-              <div className="mt-3">
-                <img src="images/zoey.png" className="!w-auto h-auto mx-auto" />
-              </div>
-              <div className="flex gap-3 flex-wrap mt-8 justify-center">
-                {['Normal', 'Friendly', 'Hopeful', 'Unfriendly', 'Cheerful', 'Sad', 'Excited', 'Angry', 'Terrified', 'Shouting', 'Whispering'].map((label) => (
-                  <div className="w-[47%] md:w-auto" key={label}>
-                    <div className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out" data-src="kayla-normal.mp3">
-                      <div className="flex items-center rounded-[8px]">
-                        <div className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center" title="">
-                          <a href="/" aria-label="Click to play text to voice audio" className="grid place-content-center">
-                            <img src="images/zoey.png" alt="Play" className="w-2 h-2" />
-                          </a>
-                        </div>
-                      </div>
-                      <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">{label}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="w-full lg:w-[48%] bg-[#e8f5fd] py-10 px-5 rounded-3xl">
-            <div className="">
-              <div className="flex justify-center">
-                <span className="inline-block -mt-[90px]">
-                  <img src="images/zoey.png" alt="Axel " className="!w-auto h-auto" />
-                </span>
-              </div>
-              <h2 className="font-avertabold text-[26px] text-[#1f2024] text-center">
-                Axel
-                <span className="text-base text-[#33b4f3] font-averta">Male</span>
-              </h2>
-              <div className="mt-3">
-                <img src="images/zoey.png" className="!w-auto h-auto mx-auto" />
-              </div>
-              <div className="flex gap-3 flex-wrap mt-8 justify-center">
-                {['Normal', 'Friendly', 'Hopeful', 'Unfriendly', 'Shouting', 'Whispering'].map((label) => (
-                  <div className="w-[47%] md:w-auto" key={label}>
-                    <div className="flex items-center py-1 pl-1 pr-2 xl:p-3.5 bg-white rounded-xl gap-1 hover:bg-gradient-to-r hover:from-[#1fb4ff3b] hover:to-[#b26ff63b] transition duration-300 ease-in-out" data-src="axel-normal.mp3">
-                      <div className="flex items-center rounded-[8px]">
-                        <div className="w-6 h-6 rounded-[50%] bg-[#8a78ef] flex justify-center items-center" title="">
-                          <a href="#" aria-label="Click to play text to voice audio" className="grid place-content-center">
-                            <img src="images/zoey.png" alt="Play" className="w-2 h-2" />
-                          </a>
-                        </div>
-                      </div>
-                      <span className="font-avertabold text-[#1f2024] text-sm lg:text-base">{label}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </Slider>
-    </div> */}
-      </div>
+       <TablaAccompaniment />
       <div className="section8 bg-section8-bg rounded-3xl w-[96%] mx-auto py-6 lg:py-24 mt-6 lg:mt-20">
         <div className="container mx-auto">
           <h3 className="text-center text-2xl lg:text-[44px] font-averta font-avertabold text-white mt-5 leading-snug">
@@ -1314,10 +736,7 @@ console.log(checked,"checked");
             Experience our HUMAN-sounding tabla loops first hand:
           </h5>
           <div className="card-wrapper flex flex-wrap gap-5 mt-5 justify-center">
-           
-        
             <Artists />
-            
           </div>
         
         </div>
@@ -1855,7 +1274,7 @@ console.log(checked,"checked");
                   Free Updates and Support
                 </li>
               </ul>
-              <div className="max-w-[330px] flex flex-col justify-center gap-2">
+              <div className="max-w-[330px] mx-auto flex flex-col justify-center gap-2">
                 <Link
                   onClick={() => {
                     handlePayment();
@@ -1903,57 +1322,9 @@ console.log(checked,"checked");
         </div>
       </section>
       <div className="section13 bg-faq-bg py-8 lg:py-28 max-w-[94%] mx-auto bg-no-repeat relative mt-8 lg:mt-48 px-8">
-        <h2 className="font-avertabold font-averta text-center text-2xl lg:text-[44px] text-white">
+        <h2 className="font-averta text-center text-2xl lg:text-[44px] text-white">
           Frequently Asked Questions
         </h2>
-        {/* <div className="mt-5 lg:mt-20 max-w-[1140px] mx-auto text-white font-averta text-[29px]">
-      <div id="accordion">
-        <div className="border-b border-[#130d54] py-3 lg:py-7">
-          <h4 className="accordion-toggle active relative py-3 text-lg lg:text-2xl">
-            Perfect for Students:
-          </h4>
-          <div className="accordion-content default text-base font-averta text-[#a09cc5] mt-5">
-            <p>
-              Vocal and instrumental students can enhance their practice
-              sessions with realistic तबला accompaniment.
-            </p>
-          </div>
-        </div>
-        <div className="border-b border-[#130d54] py-3 lg:py-7">
-          <h4 className="accordion-toggle relative py-3 font-averta text-lg lg:text-2xl">
-            Ideal for Artists?
-          </h4>
-          <div className="accordion-content text-base font-averta text-[#a09cc5]">
-            <p>
-              Performing and budding artists can use Saath Tabla for live
-              performances and personal recording sessions.
-            </p>
-          </div>
-        </div>
-        <div className="border-b border-[#130d54] py-3 lg:py-7">
-          <h4 className="accordion-toggle relative py-3 font-averta text-lg lg:text-2xl">
-            Great for Creators
-          </h4>
-          <div className="accordion-content text-base font-averta text-[#a09cc5]">
-            <p>
-              Music composers, YouTubers, and Ghazal singers can create
-              professional content with authentic तबला sounds.
-            </p>
-          </div>
-        </div>
-        <div className="border-b border-[#130d54] py-3 lg:py-7">
-          <h4 className="accordion-toggle relative py-3 font-averta text-lg lg:text-2xl">
-            Essential for Teachers
-          </h4>
-          <div className="accordion-content text-base font-averta text-[#a09cc5]">
-            <p>
-              Music teachers can provide engaging lessons with professional तबला
-              accompaniment.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div> */}
         <div className="mt-5 lg:mt-20 max-w-[1140px] mx-auto text-white font-averta text-[29px]">
           <div id="accordion">
             {accordionData.map((item, index) => (
@@ -1979,18 +1350,7 @@ console.log(checked,"checked");
                     <p>{item.content}</p>
                   </div>
                 </div>
-                {/* ================================= */}
-                {/* <div className="border-b border-[#130d54] py-3 lg:py-7">
-          <h4 className="accordion-toggle active relative py-3 text-lg lg:text-2xl">
-            Perfect for Students:
-          </h4>
-          <div className="accordion-content default text-base font-averta text-[#a09cc5] mt-5">
-            <p>
-              Vocal and instrumental students can enhance their practice
-              sessions with realistic तबला accompaniment.
-            </p>
-          </div>
-        </div> */}
+                
               </>
             ))}
           </div>
@@ -1998,10 +1358,10 @@ console.log(checked,"checked");
       </div>
       <div className="section15 py-10 lg:py-24">
         <div className="container mx-auto">
-          <h2 className="text-2xl lg:text-[44px] font-averta text-center w-full ">
-            Grab Access To Revoicer Today…
+          <h2 className="text-xl md:text-4xl font-averta text-center w-full mb-2 ">
+            Grab Access To Revoicer Today…  
           </h2>
-          <h3 className="text-2xl font-averta text-center w-full">
+          <h3 className="text-sm md:text-xl font-averta text-center w-full">
             No Monthly Fees – One Time Payment
           </h3>
           {/* <div className="star-rating justify-center flex flex-col">
@@ -2027,7 +1387,7 @@ console.log(checked,"checked");
           <div className="flex justify-center flex-col gap-2">
             <h2
               onClick={scrollToBuyNow}
-              className=" cursor-pointer w-100% lg:w-[500px] mx-auto my-2 text-center bg-[#1fb6ff] text-white text-nowrap text-xl lg:text-[26px] inline-block px-14 rounded-[40px] py-3 font-avertabold shadow-[0px_20px_35px_0px_rgb(31_182_255_/_29%)] hover-shadow-none"
+              className=" cursor-pointer w-full lg:w-[500px] mx-auto my-2 text-center bg-[#1fb6ff] text-white text-nowrap text-xl lg:text-[26px] inline-block md:px-14 px-1 rounded-[40px] py-3 font-avertabold shadow-[0px_20px_35px_0px_rgb(31_182_255_/_29%)] hover-shadow-none"
             >
               Get Revoicer Right Now!
             </h2>
@@ -2040,4 +1400,3 @@ console.log(checked,"checked");
 }
 
 export default Home;
-

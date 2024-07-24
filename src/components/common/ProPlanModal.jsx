@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, {  useState } from 'react';
+import {  UserLifetimeSignupApi } from '../../constant';
 
 
 const ProPlanModal = ({setIsModalOpen, membershipdetails}) => {
@@ -10,7 +11,7 @@ const ProPlanModal = ({setIsModalOpen, membershipdetails}) => {
   const [isOtpRequired, setIsOtpRequired] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-console.log(checked,"checked");
+
 
 
 const handleLogin = async (e) => {
@@ -20,7 +21,7 @@ const handleLogin = async (e) => {
       setLoading(true);
       try {
         const response = await axios.post(
-          'https://www.gr8masters.com/SaathStudioAPI/api/V2/userLifetimeSignup.php',
+          UserLifetimeSignupApi,
           new URLSearchParams({
             api_key: 'nK<uJ@Tk8&$B#-xq-?#}',
             email: email,
@@ -67,9 +68,9 @@ const handleLogin = async (e) => {
             <div className="border m-1 border-gray-600 h-full" >
               <div className="text-center ">
                 <div className='flex'>
-                  <img src="images/bestprice.png" alt="" className='lg:w-24 lg:h-24 h-16  lg:mr-28' />
-                  <img src="./images/proplan.png" alt="Saath Tabla" className="mx-auto w-20 lg:w-60" />
-                  <img src="./images/limitedoffer.png" alt="Saath Tabla" className="w-20 lg:w-52" />
+                  <img src="images/bestprice.png" alt="" className='lg:w-24 lg:h-24 h-16 mr-4 md:mr-8 lg:mr-24' />
+                  <img src="./images/proplan.png" alt="Saath Tabla" className="mx-auto w-20 md:w-28 lg:w-60" />
+                  <img src="./images/limitedoffer.png" alt="Saath Tabla" className="w-24  lg:w-60" />
                   </div>
                 <div className="text-center mt-1" style={{ backgroundImage: `url("./images/stamp.png")`, backgroundRepeat: "no-repeat", backgroundSize:"contain", backgroundPosition:'center' }}>
                   <img src="./images/logo.png" alt="Saath Tabla" className="mx-auto w-20 lg:w-48" />
@@ -78,14 +79,14 @@ const handleLogin = async (e) => {
                   <div className="text-2xl md:text-3xl mt-2 sm:mb-2 mb-2 font-bold">Rs. 3499 only</div>
                   <div className="mt-2 font-bold">One Time Payment - No recurring subscriptions</div>
                 </div>
-                <form className="mt-6 md:w-96 mx-auto px-2 text-center" onSubmit={handleLogin}>
+                <form className="mt-1 sm:mt-6 md:w-96 mx-auto px-2 text-center" onSubmit={handleLogin}>
                   <input
                     placeholder="Name"
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
-                    className="w-full p-2 border border-gray-300 mb-4"
+                    className="w-full p-2 border border-gray-300 mb-1 sm:mb-4"
                   />
                   <input
                     type="email"
@@ -93,7 +94,7 @@ const handleLogin = async (e) => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="Email"
-                    className="w-full p-2 border border-gray-300 mb-4"
+                    className="w-full p-2 border border-gray-300 mb-1 sm:mb-4"
                   />
                   {isOtpRequired && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -132,7 +133,7 @@ const handleLogin = async (e) => {
                       className="mr-2"
                       onChange={(e)=> setChecked(e.target.checked)}
                     />
-                    <label htmlFor="terms&Conditions" className="text-sm text-red-900 font-semibold">I Agree to Terms & Conditions</label>
+                    <label htmlFor="terms&Conditions" className="text-sm text-red-900 font-semibold">I Agree to <a href='https://saathstudio.com/terms-and-condition'>Terms & Conditions </a></label>
                   </div>
                   {error && <p className="text-red-500 text-sm">{error}</p>}
                   <div className="flex justify-center w-full">
@@ -148,13 +149,13 @@ const handleLogin = async (e) => {
                     </button>
                   </div>
                 </form>
-                <div className="sm:mt-10 mt-10">
-                  <div className="md:text-base text-xs mt-4 text-gray-600">
+                <div className="sm:mt-10 mt-2">
+                  <div className="md:text-base sm:text-xs text-[8px] mt-4 text-gray-600">
                     <strong>Note: </strong> if you already have an account on Saath Tabla with the given email ID then the lifetime pro plan will be activated to that account after successful payment. If you don't have an account on Saath Tabla app, we will automatically create one for you with this email and send you the account password to your email.
                   </div>
                   <div className="flex justify-between mt-4">
-                    <a href="/" className="text-blue-500 hover:underline w-1/2 md:text-center">Privacy Policy</a>
-                    <a href="/" className="text-blue-500 hover:underline w-1/2 md:text-center">Refund Policy</a>
+                    <a href="https://saathstudio.com/privacy-policy" className="text-blue-500 hover:underline w-1/2 md:text-center">Privacy Policy</a>
+                    <a href="https://saathstudio.com/cancellation" className="text-blue-500 hover:underline w-1/2 md:text-center">Refund Policy</a>
                   </div>
                 </div>
               </div>
