@@ -154,8 +154,8 @@ const handleLogin = async (e) => {
                     <strong>Note: </strong> if you already have an account on Saath Tabla with the given email ID then the lifetime pro plan will be activated to that account after successful payment. If you don't have an account on Saath Tabla app, we will automatically create one for you with this email and send you the account password to your email.
                   </div>
                   <div className="flex justify-between mt-4">
-                    <a href="https://saathstudio.com/privacy-policy" className="text-blue-500 hover:underline w-1/2 md:text-center">Privacy Policy</a>
-                    <a href="https://saathstudio.com/cancellation" className="text-blue-500 hover:underline w-1/2 md:text-center">Refund Policy</a>
+                    <a href="https://saathstudio.com/privacy-policy" target="_blank" className="text-blue-500 hover:underline w-1/2 md:text-center">Privacy Policy</a>
+                    <a href="https://saathstudio.com/cancellation" target="_blank" className="text-blue-500 hover:underline w-1/2 md:text-center">Refund Policy</a>
                   </div>
                 </div>
               </div>
