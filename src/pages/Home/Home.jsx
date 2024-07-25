@@ -16,6 +16,9 @@ import {  GetMembershipdetailsApi, PlaceUserOrderAndroidApi, RozerpayKeyId, Roze
 import VoteAnswerAlert from "../../components/common/VoteAnsweralert";
 import TablaAccompaniment from "../../components/TablaAccompaniment";
 import useAudioPlayer from "../../hooks/useAudioPlayer";
+import GooglePlay from "../../public/images/svg/google-play-badge-logo-svgrepo-com.svg";
+import Appstore from "../../public/images/svg/download-on-the-app-store-apple-logo-svgrepo-com.svg";
+import { APPSTORE, GOOGLE_PLAY_STORE } from '../../constant';
 
 function Home() {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -298,7 +301,19 @@ function Home() {
                   Get Saath Tabla Right Now!
                 </h2>
               </div>
-              <div className="text-center mt-8 lg:mt-[102px] ">
+              <div className="flex justify-center items-center lg:gap-9 gap-2 md:mt-7  mt-6 mx-auto">
+                                    <div className="lg:w-4/12 w-7/12 m-1">
+                                        <Link to={GOOGLE_PLAY_STORE} target="blank">
+                                            <img src={GooglePlay} alt="" className="lg:w-80 w-48" />
+                                        </Link>
+                                    </div>
+                                    <div className='lg:w-4/12 w-7/12 m-1'>
+                                        <Link to={APPSTORE} target="blank">
+                                            <img src={Appstore} alt="" className="lg:w-80 w-48" />
+                                        </Link>
+                                    </div>
+                                </div>
+              <div className="text-center mt-8 lg:mt-20">
                 <h3 className="font-avertabold text-xl lg:text-2xl">
                   Real Results from Real Customers -
                   <span className="font-averta">Read Their Stories:</span>
@@ -324,6 +339,40 @@ function Home() {
       <div className="section3 mt-[70px]">
         <div className="container mx-auto">
           <div className="p-5 xl:p-14 bg-gradient-to-r from-[#e9f8ff] to-[#f7f0fe] rounded-[29px] flex flex-wrap gap-4 xl:gap-11 justify-center relative before:hidden md:before:block before:absolute before:w-[141px] before:h-[155px] before:-right-10 before:-bottom-9 before:-z-10 before:bg-dottedbg">
+           <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon4.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="font-averta text-[19px] xl:text-lg">
+                  AI-Based Sequence for Human-Like{" "}
+                  <span className="font-avertabold">Experience</span>
+                </h4>
+              </div>
+            </div>
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon2.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="font-averta text-[19px] xl:text-lg">
+                  Real Tabla Loops by
+                  <span className="font-avertabold">Maestros</span>
+                </h4>
+              </div>
+            </div>
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon5.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64 ">
+                <h4 className="font-averta text-[19px] xl:text-lg whitespace-normal">
+                  Volume Mixer and
+                  <div className="font-avertabold">Pitch/Tempo</div>
+                  Control
+                </h4>
+              </div>
+            </div>
             <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
               <div className="box-icon-wrapper shrink-0">
                 <img src="images/voiceicon1.webp" alt="" />
@@ -341,45 +390,11 @@ function Home() {
             </div>
             <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
               <div className="box-icon-wrapper shrink-0">
-                <img src="images/voiceicon2.webp" alt="" />
-              </div>
-              <div className="box-text pl-3 max-w-64">
-                <h4 className="font-averta text-[19px] xl:text-lg">
-                  Real Tabla Loops by
-                  <span className="font-avertabold">Maestros</span>
-                </h4>
-              </div>
-            </div>
-            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
-              <div className="box-icon-wrapper shrink-0">
                 <img src="images/voiceicon3.webp" alt="" />
               </div>
               <div className="box-text pl-3 max-w-64">
                 <h4 className="text-[19px] lg:text-lg font-avertabold">
                   Customizable Tanpura and Swarmandal
-                </h4>
-              </div>
-            </div>
-            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
-              <div className="box-icon-wrapper shrink-0">
-                <img src="images/voiceicon4.webp" alt="" />
-              </div>
-              <div className="box-text pl-3 max-w-64">
-                <h4 className="font-averta text-[19px] xl:text-lg">
-                  AI-Based Sequence for Human-Like{" "}
-                  <span className="font-avertabold">Experience</span>
-                </h4>
-              </div>
-            </div>
-            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
-              <div className="box-icon-wrapper shrink-0">
-                <img src="images/voiceicon5.webp" alt="" />
-              </div>
-              <div className="box-text pl-3 max-w-64 ">
-                <h4 className="font-averta text-[19px] xl:text-lg whitespace-normal">
-                  Volume Mixer and
-                  <div className="font-avertabold">Pitch/Tempo</div>
-                  Control
                 </h4>
               </div>
             </div>
@@ -724,7 +739,7 @@ function Home() {
        <TablaAccompaniment />
       <div className="section8 bg-section8-bg rounded-3xl w-[96%] mx-auto py-6 lg:py-24 mt-6 lg:mt-20">
         <div className="container mx-auto">
-          <h3 className="text-center text-2xl lg:text-[44px] font-averta font-avertabold text-white mt-5 leading-snug">
+          <h3 className="text-center text-2xl lg:text-[44px] font-averta text-white mt-5 leading-snug">
             Saath Tabla has a Rhythm for Every Performance
           </h3>
           <h4 className="text-center text-white max-w-[670px] mx-auto mt-0 lg:mt-5 text-sm lg:text-xl">
@@ -742,7 +757,7 @@ function Home() {
         </div>
       </div>
       <div className="section9 py-8 lg:py-28  px-4">
-        <h2 className="text-center text-[24px] lg:text-[44px] font-averta font-avertabold text-black mt-5">
+        <h2 className="text-center text-[24px] lg:text-[44px] font-averta text-black mt-5">
           Saath Tabla Unmatched Features
         </h2>
         <p className="text-center text-[#646876] max-w-[700px] mx-auto mt-5 text-sm lg:text-xl ">
@@ -767,7 +782,7 @@ function Home() {
           </div>
           <div className="w-full lg:w-1/2 flex justify-between py-[4%] pl-[4%] pr-[7%] bg-[#ffe7eb] flex-col xl:flex-row xl:items-start">
             <div className="w-full xl:w-1/2 text-left">
-              <h3 className="text-[#5e353c] text-xl lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 text-center lg:text-left leading-snug">
+              <h3 className="text-[#5e353c] text-xl lg:text-[38px] font-averta mb-0 lg:mb-3 text-center lg:text-left leading-snug">
                 Customizable Tanpura with Dual Octaves
               </h3>
               <p className="lg:text-xl text-[#5a4b24] font-poppins xl:max-w-[300px] text-sm text-center lg:text-left">
@@ -784,7 +799,7 @@ function Home() {
               <img src="images/revoicerimg3.webp" alt="Recovering " />
             </div>
             <div className="w-full xl:w-1/2 lg:text-right text-center">
-              <h3 className="text-[#5a4b24] text-xl lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 leading-snug">
+              <h3 className="text-[#5a4b24] text-xl lg:text-[38px] font-averta mb-0 lg:mb-3 leading-snug">
                 Swarmandal with 120+ Raagas
               </h3>
               <p className="text-sm lg:text-xl text-[#5a4b24] font-poppins">
@@ -796,7 +811,7 @@ function Home() {
           </div>
           <div className="w-full lg:w-1/2 flex justify-between py-[4%] pl-[4%] pr-[7%] bg-[#d5fdf9] flex-col xl:flex-row xl:items-start">
             <div className="w-full xl:w-1/2 text-center lg:text-left ">
-              <h3 className="text-[#2b4b48] text-xl lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 leading-snug">
+              <h3 className="text-[#2b4b48] text-xl lg:text-[38px] font-averta  mb-0 lg:mb-3 leading-snug">
                 Pitch and Tempo Control
               </h3>
               <p className="lg:text-xl text-[#445957] font-poppins xl:max-w-[300px]  text-sm lg:text-left ">
@@ -815,7 +830,7 @@ function Home() {
               <img src="images/revoicerimg5.webp" alt="Recovering " />
             </div>
             <div className="w-full xl:w-1/2 text-center lg:text-right">
-              <h3 className="text-[#373a50] text-xl lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 leading-snug ">
+              <h3 className="text-[#373a50] text-xl lg:text-[38px] font-averta  mb-0 lg:mb-3 leading-snug ">
                 AI-Based Sequence Generation
               </h3>
               <p className="lg:text-xl text-sm text-[#4e5163] font-poppins text-center lg:text-right">
@@ -830,7 +845,7 @@ function Home() {
           </div>
           <div className="w-full lg:w-1/2 flex xl:justify-between py-[4%] pl-[4%] pr-[7%] bg-[#fae0ff] flex-col xl:flex-row xl:items-start">
             <div className="w-full xl:w-1/2 text-left md:mt-4">
-              <h3 className="text-[#4f3c53] text-lg lg:text-[38px] font-averta font-avertabold mb-0 lg:mb-3 text-center lg:text-left leading-snug">
+              <h3 className="text-[#4f3c53] text-lg lg:text-[38px] font-averta mb-0 lg:mb-3 text-center lg:text-left leading-snug">
                 Available for Android and iOS
               </h3>
               <p className="lg:text-xl text-[#604e63] font-poppins xl:max-w-[300px] text-center lg:text-left text-sm mx-auto">
@@ -846,7 +861,7 @@ function Home() {
         </div>
       </div>
       <div className="section10 pt-0 pb-10 lg:py-20">
-        <h2 className="max-w-[670px] mx-auto text-center text-2xl lg:text-[44px] text-black font-averta font-avertabold leading-normal">
+        <h2 className="max-w-[670px] mx-auto text-center text-2xl lg:text-[44px] text-black font-averta leading-normal">
           Listen to some SAMPLE VIDEOS <br />
           created with SAATH TABLA:
         </h2>
@@ -1072,7 +1087,7 @@ function Home() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-between pt-5 lg:pt-32 lg:pt-0 relative flex-wrap lg:flex-wrap ">
+            <div className="flex justify-between pt-5 lg:pt-32  relative flex-wrap lg:flex-wrap ">
               <span className="w-6 h-6 bg-[#fe7394] rounded-full absolute top-32 left-0 right-0 mx-auto bg-opacity-30 grid place-content-center">
                 <span className="w-4 h-4 bg-[#fe7394] rounded-full inline-block" />
               </span>
@@ -1156,14 +1171,14 @@ function Home() {
           <h3 className="text-[29px] lg:text-[56px] text-[#1f2024] py-4 lg:py-16 text-center ">
             “Robotic Tabla Sounds Are A Thing Of The Past!”
           </h3>
-          <div className=" mx-auto max-w-[610px] mx-auto ">
-            <div className="bg-section12-bg bg-100% bg-no-repeat flex md:py-24 justify-center pt-4 lg:py-16 flex-col items-center bg-100% md:bg-auto md:bg-center">
+          <div className=" mx-auto max-w-[610px] ">
+            <div className="bg-section12-bg bg-no-repeat flex md:py-24 justify-center pt-4 lg:py-16 flex-col items-center bg-100% md:bg-auto md:bg-center">
               <img
                 src="images/moneybackLogo.webp"
                 alt="moneybackimg"
                 className="w-auto mb-8"
               />
-              <h3 className="text-lg lg:text-[30px] text-center font-averta text-white font-avertabold">
+              <h3 className="text-lg lg:text-[30px] text-center font-averta text-white ">
                 Free Trial Available
               </h3>
             </div>
@@ -1218,10 +1233,10 @@ function Home() {
             />
           </li>
         </ul>
-        <div className="w-[96%] px-4 lg:px-12 mx-auto max-w-[419px] mx-auto mt-16 bg-playbg-bg bg-no-repeat border border-[#4dbbfa] rounded-[20px] bg-white ">
+        <div className="w-[96%] px-4 lg:px-12 mx-auto max-w-[419px] mt-16 bg-playbg-bg bg-no-repeat border border-[#4dbbfa] rounded-[20px] bg-white ">
           <div className="py-12 px-0 relative">
             <div className="max-w-full">
-              <p className="text-white font-averta text-lg bg-gradient-to-r from-[#48befa] to-[#b872ff] w-32 mx-auto text-center absolute -top-4 left-0 right-0 mx-auto rounded-lg">
+              <p className="text-white font-averta text-lg bg-gradient-to-r from-[#48befa] to-[#b872ff] w-32 mx-auto text-center absolute -top-4 left-0 right-0 rounded-lg">
                 Most Popular
               </p>
               <h3 className="text-3xl mt-0 lg:mt-10 font-avertabold mb-2 text-center lg:text-left">
@@ -1230,7 +1245,7 @@ function Home() {
               <h4 className="text-[#949494] text-2xl mb-3 text-center lg:text-left line-through">
                 Regular: {planDetails && planDetails?.originalPrice}
               </h4>
-              <h5 className="text-[24px] font-avertabold text-center text-center lg:text-left">
+              <h5 className="text-[24px] font-avertabold text-center lg:text-left">
                 <span className="text-[40px]">
                   {planDetails && planDetails?.discountedPrice}
                 </span>{" "}
