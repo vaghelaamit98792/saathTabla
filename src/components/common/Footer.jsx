@@ -64,6 +64,7 @@ function Footer() {
                   <ul className="space-y-5">
                     <li>
                       <a
+                        target="blank"
                         href="https://saathstudio.com/about-us"
                         className="text-[#000] hover:text-[#8b81eb] hover:underline"
                       >
@@ -72,6 +73,7 @@ function Footer() {
                     </li>
                     <li>
                       <a
+                       target="blank"
                         href="https://saathstudio.com/privacy-policy"
                         className="text-[#000] hover:text-[#8b81eb] hover:underline"
                       >
@@ -80,6 +82,7 @@ function Footer() {
                     </li>
                     <li>
                       <a
+                       target="blank"
                         href="https://saathstudio.com/terms-and-condition"
                         className="text-[#000] hover:text-[#8b81eb] hover:underline"
                       >
@@ -88,6 +91,7 @@ function Footer() {
                     </li>
                     <li>
                       <a
+                       target="blank"
                         href="https://saathstudio.com/cancellation"
                         className="text-[#000] hover:text-[#8b81eb] hover:underline"
                       >
@@ -96,6 +100,7 @@ function Footer() {
                     </li>
                     <li>
                       <a
+                       target="blank"
                         href="https://saathstudio.com/system-requirements"
                         className="text-[#000] hover:text-[#8b81eb] hover:underline"
                       >
@@ -111,6 +116,7 @@ function Footer() {
                   <ul className="space-y-5">
                     <li>
                       <a
+                       target="blank"
                         href="https://saathstudio.com/faq"
                         className="text-[#000] hover:text-[#8b81eb] hover:underline"
                       >
@@ -119,6 +125,7 @@ function Footer() {
                     </li>
                     <li>
                       <a
+                       target="blank"
                         href="https://saathstudio.com/account-deletion"
                         className="text-[#000] hover:text-[#8b81eb] hover:underline"
                       >
@@ -127,6 +134,7 @@ function Footer() {
                     </li>
                     <li>
                       <a
+                      target="blank"
                         href="https://saathstudio.com/contact"
                         className="text-[#000] hover:text-[#8b81eb] hover:underline"
                       >
