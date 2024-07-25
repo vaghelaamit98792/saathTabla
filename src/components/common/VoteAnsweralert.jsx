@@ -4,7 +4,7 @@ function VoteAnswerAlert({ setChecked }) {
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div className="bg-white rounded-lg shadow-lg lg:w-1/3 w-10/12  mx-auto md:m-10 m-3 relative ">
+        <div className="bg-white rounded-lg shadow-lg lg:w-1/3 w-10/12  mx-auto md:m-10 m-3 relative transform -translate-x-1/2   animate-slideInDown ">
           <button
             aria-label="Click To Play Audio"
             type="button"

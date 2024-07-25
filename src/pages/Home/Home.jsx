@@ -27,8 +27,13 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ setPaymentStatus] = useState('');
-  const [checked, setChecked] = useState(false)
+  const [checked1, setChecked1] = useState(false);
+  const [checked2, setChecked2] = useState(false);
 
+  const handleCheckboxChange = (setter) => () => {
+    setter((prev) => !prev);
+  };
+  
   useEffect(() => {
     const script = document.createElement('script');
     script.src = RozerpaySrcLink;
@@ -317,7 +322,7 @@ function Home() {
                                 </div>
               <div className="text-center mt-8 lg:mt-20">
                 <h3 className="font-avertabold text-xl lg:text-2xl">
-                  Real Results from Real Customers -
+                  Real Results from Real Customers -&nbsp;
                   <span className="font-averta">Read Their Stories:</span>
                 </h3>
               </div>
@@ -358,7 +363,7 @@ function Home() {
               </div>
               <div className="box-text pl-3 max-w-64">
                 <h4 className="font-averta text-[19px] xl:text-lg">
-                  Real Tabla Loops by
+                  Real Tabla Loops by&nbsp;
                   <span className="font-avertabold">Maestros</span>
                 </h4>
               </div>
@@ -448,19 +453,52 @@ function Home() {
                   </h3>
                   <div className="flex items-center justify-center text-white my-8 md:my-5 xl:mt-10 xl:mb-12">
                   <input
-                        type="checkbox"
-                        id="Text-To-Speech1"
-                        name="Text-To-Speech1"
-                        onChange={(e) => setChecked(e.target.checked)}
-                        checked={checked}
-                      />
-                      <label
-                        htmlFor="Text-To-Speech1"
-                        className="text-sm lg:text-[17px] font-averta ml-2 "
-                      >
-                        CLICK HERE - If you think this video is Text-To-Speech
-                      </label>
+        type="checkbox"
+        id="Text-To-Speech1"
+        name="Text-To-Speech1"
+        onChange={handleCheckboxChange(setChecked1)}
+        checked={checked1}
+        className="hidden"
+      />
+      <label
+        htmlFor="Text-To-Speech1"
+        className="flex items-center cursor-pointer"
+      >
+        <span
+          className={`relative w-6 h-6 mr-2 border rounded flex items-center justify-center transition-colors duration-300 ${
+            checked1 ? 'bg-transparent border-white' : 'bg-white border-gray-500'
+          }`}
+        >
+          <div
+            className={`absolute transition-transform duration-300 ${
+              checked1 ? 'animate-bounceIn' : 'animate-bounceOut'
+            }`}
+          >
+            {checked1 && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 100 125"
+                className="w-9 h-11 ml-3 text-white"
+              >
+                <defs>
+                  <g id="a">
+                    <path
+                      fill="#ffffff"
+                      d="M 92.3 19.55 Q 90.85 18.05 88.8 18 86.7 17.95 85.25 19.4 L 33.2 69.8 15.1 49.6 Q 13.7 48.05 11.65 47.95 9.55 47.85 8.05 49.25 6.45 50.6 6.35 52.7 6.25 54.75 7.65 56.3 L 29.25 80.35 Q 30.15 81.35 31.5 81.8 32.8 82.2 34.15 81.85 35.45 81.55 36.45 80.6 L 92.2 26.6 Q 93.65 25.15 93.7 23.1 93.75 21 92.3 19.55 Z"
+                    />
+                  </g>
+                </defs>
+                <g transform="matrix( 1, 0, 0, 1, 0,0)">
+                  <use href="#a" />
+                </g>
+              </svg>
+            )}
+          </div>
+        </span>
+        CLICK HERE - If you think this video is Text-To-Speech
+      </label>
                   </div>
+                 
                   <div className="rounded-xl overflow-hidden">
                     <iframe
                       width="100%"
@@ -488,20 +526,51 @@ function Home() {
                       </span>
                     </h3>
                     <div className="flex items-center text-white my-8 md:my-5 xl:mt-10 xl:mb-12">
-                      <input
-                        type="checkbox"
-                        id="Text-To-Speech"
-                        name="Text-To-Speech"
-                        onChange={(e) => setChecked(e.target.checked)}
-                        checked={checked}
-
-                      />
-                      <label
-                        htmlFor="Text-To-Speech"
-                        className="text-sm lg:text-[17px] font-averta ml-2 "
-                      >
-                        CLICK HERE - If you think this video is Text-To-Speech
-                      </label>
+                    <input
+        type="checkbox"
+        id="Text-To-Speech2"
+        name="Text-To-Speech2"
+        onChange={handleCheckboxChange(setChecked2)}
+        checked={checked2}
+        className="hidden"
+      />
+      <label
+        htmlFor="Text-To-Speech2"
+        className="flex items-center cursor-pointer"
+      >
+        <span
+          className={`relative w-6 h-6 mr-2 border rounded flex items-center justify-center transition-colors duration-300 ${
+            checked2 ? 'bg-transparent border-white' : 'bg-white border-gray-500'
+          }`}
+        >
+          <div
+            className={`absolute transition-transform duration-300 ${
+              checked2 ? 'animate-bounceIn' : 'animate-bounceOut'
+            }`}
+          >
+            {checked2 && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 100 125"
+               className="w-9 h-11 ml-3 text-white"
+              >
+                <defs>
+                  <g id="a">
+                    <path
+                      fill="#ffffff"
+                      d="M 92.3 19.55 Q 90.85 18.05 88.8 18 86.7 17.95 85.25 19.4 L 33.2 69.8 15.1 49.6 Q 13.7 48.05 11.65 47.95 9.55 47.85 8.05 49.25 6.45 50.6 6.35 52.7 6.25 54.75 7.65 56.3 L 29.25 80.35 Q 30.15 81.35 31.5 81.8 32.8 82.2 34.15 81.85 35.45 81.55 36.45 80.6 L 92.2 26.6 Q 93.65 25.15 93.7 23.1 93.75 21 92.3 19.55 Z"
+                    />
+                  </g>
+                </defs>
+                <g transform="matrix( 1, 0, 0, 1, 0,0)">
+                  <use href="#a" />
+                </g>
+              </svg>
+            )}
+          </div>
+        </span>
+        CLICK HERE - If you think this video is Text-To-Speech
+      </label>
                     </div>
                     <div className="rounded-xl overflow-hidden">
                       <iframe
@@ -529,9 +598,9 @@ function Home() {
               </button>
             </div>
           </div>
-          {checked && (
-            <VoteAnswerAlert setChecked={setChecked}/>
-          )}
+          {checked1  && <VoteAnswerAlert setChecked={setChecked1} />}
+          {checked2  && <VoteAnswerAlert setChecked={setChecked2} />}
+
         </div>
       </div>
       <div className="section5 bg-[#050038] rounded-3xl w-[96%] mx-auto py-8 lg:py-24 mt-8 lg:mt-28">
@@ -1215,24 +1284,16 @@ function Home() {
       <div id="ByNow" className="section12  bg-section14-bg pt-24 pb-24">
         <ul className="flex justify-center gap-3 md:gap-5 flex-wrap lg:flex-row">
           <li className="w-2/5 md:w-auto grid place-content-center">
-            <img src="images/planicon1.webp" 
-            alt=""
-            />
+            <img src="images/planicon1.webp" alt="" />
           </li>
           <li className="w-2/5 md:w-auto grid place-content-center">
-            <img src="images/planicon2.webp" 
-            alt=""
-            />
+            <img src="images/planicon2.webp" alt="" />
           </li>
           <li className="w-2/5 md:w-auto grid place-content-center">
-            <img src="images/planicon3.webp" 
-            alt=""
-            />
+            <img src="images/planicon3.webp" alt="" />
           </li>
           <li className="w-2/5 md:w-auto grid place-content-center">
-            <img src="images/planicon4.webp" 
-            alt=""
-            />
+            <img src="images/planicon4.webp" alt="" />
           </li>
         </ul>
         <div className="w-[96%] px-4 lg:px-12 mx-auto max-w-[419px] mt-16 bg-playbg-bg bg-no-repeat border border-[#4dbbfa] rounded-[20px] bg-white ">
@@ -1268,13 +1329,13 @@ function Home() {
                 </li>
                 <li className="flex gap-2 items-center">
                   <span>
-                    <img src="images/checklist3.webp" alt=""/>
+                    <img src="images/checklist3.webp" alt="" />
                   </span>
                   12+ tals included
                 </li>
                 <li className="flex gap-2 items-center">
                   <span>
-                    <img src="images/checklist3.webp" alt=""/>
+                    <img src="images/checklist3.webp" alt="" />
                   </span>
                   Volume and Panning Feature available
                 </li>
@@ -1314,26 +1375,27 @@ function Home() {
       <section className="section14 mt-[6%] ">
         <div className="container mx-auto">
           <h2 className="text-2xl text-center mb-16">
-            <b>Real Results from Real Customers</b> - Read Their Stories:
+            <b>Real Results from Real Customers</b> - &nbsp;{" "}
+            <span>Read Their Stories:</span>
           </h2>
           <div className="flex flex-wrap space-y-5">
             <div className="w-full md:w-1/2">
               <img src="images/testi1.jpg" alt="" />
             </div>
             <div className="w-full md:w-1/2">
-              <img src="images/testi2.jpg" alt=""/>
+              <img src="images/testi2.jpg" alt="" />
             </div>
             <div className="w-full md:w-1/2">
-              <img src="images/testi3.jpg"alt="" />
+              <img src="images/testi3.jpg" alt="" />
             </div>
             <div className="w-full md:w-1/2">
-              <img src="images/testi4.jpg"alt="" />
+              <img src="images/testi4.jpg" alt="" />
             </div>
             <div className="w-full md:w-1/2">
-              <img src="images/testi5.jpg"alt="" />
+              <img src="images/testi5.jpg" alt="" />
             </div>
             <div className="w-full md:w-1/2">
-              <img src="images/testi7.jpg"alt="" />
+              <img src="images/testi7.jpg" alt="" />
             </div>
           </div>
         </div>
