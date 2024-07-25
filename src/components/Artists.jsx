@@ -1,10 +1,10 @@
 import React from 'react';
 import { artists } from '../data/data';
-import useAudioPlayer from '../hooks/useAudioPlayer';
+import { useAudioPlayerContext } from '../context/useAudioPlayerContext';
 
 const Artists = () => {
  
-  const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayer();
+  const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayerContext();
   return (
     <>
       {artists.map((item, index) => (

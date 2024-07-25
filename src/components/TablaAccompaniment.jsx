@@ -1,6 +1,6 @@
 import React from "react";
 import Slider from "react-slick";
-import useAudioPlayer from "../hooks/useAudioPlayer";
+import { useAudioPlayerContext } from "../context/useAudioPlayerContext";
 import { AxelAudiolabels, ZoeyAudiolabels } from "../data/data";
 
 function TablaAccompaniment() {
@@ -46,7 +46,8 @@ function TablaAccompaniment() {
     ],
   };
 
-  const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayer();
+  const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayerContext();
+  console.log(playingIndex,"playingIndextabal acco");
   return (
     <>
       <div className="section7 py-8 md:py-14 lg:pt-28 lg:pb-10 relative">

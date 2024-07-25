@@ -15,7 +15,7 @@ import { accordionData, bars, cards, Durt } from "../../data/data";
 import {  GetMembershipdetailsApi, PlaceUserOrderAndroidApi, RozerpayKeyId, RozerpaySrcLink } from "../../constant";
 import VoteAnswerAlert from "../../components/common/VoteAnsweralert";
 import TablaAccompaniment from "../../components/TablaAccompaniment";
-import useAudioPlayer from "../../hooks/useAudioPlayer";
+import { useAudioPlayerContext } from "../../context/useAudioPlayerContext";
 import GooglePlay from "../../public/images/svg/google-play-badge-logo-svgrepo-com.svg";
 import Appstore from "../../public/images/svg/download-on-the-app-store-apple-logo-svgrepo-com.svg";
 import { APPSTORE, GOOGLE_PLAY_STORE } from '../../constant';
@@ -39,7 +39,9 @@ function Home() {
       document.body.removeChild(script);
     };
   }, []);
-  const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayer();
+  const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayerContext();
+  console.log(playingIndex,"playingIndexhome");
+
 
   const settings = {
     dots: true,

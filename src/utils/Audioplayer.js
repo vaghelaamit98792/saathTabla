@@ -30,6 +30,12 @@ class AudioPlayer {
         this.audio = null; // Clear the audio instance
       }
     }
+    onEnded(callback) {
+      if (this.audio) {
+        this.audio.onended = callback;
+      }
+    }
+  
   }
   
   const audioPlayer = new AudioPlayer();
