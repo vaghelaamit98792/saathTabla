@@ -20,6 +20,25 @@ module.exports = {
       },
     },
     extend: {
+      keyframes: {
+        bounceIn: {
+          '0%': { transform: 'scale(0.5)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        bounceOut: {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '100%': { transform: 'scale(0.5)', opacity: '0' },
+        },
+        slideInDown: {
+          '0%': { transform: 'translateY(-100%)', opacity: 0 },
+          '100%': { transform: 'translateY(0)', opacity: 1 },
+        },
+      },
+      animation: {
+        bounceIn: 'bounceIn 0.3s ease-out',
+        bounceOut: 'bounceOut 0.3s ease-out',
+        slideInDown: 'slideInDown 0.5s ease-out forwards',
+      },
       backgroundImage: {
         "hero-bg": "url('public/images/banner2.jpg')",
         checkbg1: "url('public/images/chk-bg.webp')",
