@@ -3,7 +3,7 @@ import React, {  useState } from 'react';
 import {  UserLifetimeSignupApi } from '../../constant';
 
 
-const ProPlanModal = ({setIsModalOpen, membershipdetails}) => {
+const ProPlanModal = ({setIsModalOpen, membershipdetails,handlePayment}) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -44,7 +44,8 @@ const handleLogin = async (e) => {
         } else if (data.status === 101) {
           setIsModalOpen(false);
           const userData = { username, email, userid };
-          localStorage.setItem('user', JSON.stringify(userData));
+         await localStorage.setItem('user', JSON.stringify(userData));
+         await handlePayment()
         } else if (data.status === 402) {
           alert('This email already has a lifetime plan. Please use another email');
         } else if (data.status === 401) {
@@ -99,7 +100,8 @@ const handleLogin = async (e) => {
                   {isOtpRequired && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                       <div className="bg-white p-4 rounded shadow-lg w-[20%] h-[20%]">
-                        <h3 className="text-lg font-semibold mb-4">Enter OTP</h3>
+                        <h3 className="text-lg font-semibold mb-4">Please Enter OTP sent on your Email
+                        </h3>
                         <input
                           type="text"
                           value={otp}
@@ -107,20 +109,21 @@ const handleLogin = async (e) => {
                           required
                           className="w-full p-2 border border-gray-300 mb-4"
                         />
-                        <div className="flex justify-end">
+                        <div className="flex justify-center">
+                        <button
+                            type="submit"
+                            className="mr-2 px-4 py-2 bg-red-900 text-white rounded"
+                          >
+                            Submit
+                          </button>
                           <button
                             type="button"
-                            className="mr-2 px-4 py-2 bg-gray-200 text-red-800 rounded"
+                            className=" px-4 py-2 bg-gray-200 text-red-800 rounded"
                             onClick={() => setIsOtpRequired(false)}
                           >
                             Cancel
                           </button>
-                          <button
-                            type="submit"
-                            className="px-4 py-2 bg-red-900 text-white rounded"
-                          >
-                            Submit
-                          </button>
+                         
                         </div>
                       </div>
                     </div>
@@ -133,7 +136,7 @@ const handleLogin = async (e) => {
                       className="mr-2"
                       onChange={(e)=> setChecked(e.target.checked)}
                     />
-                    <label htmlFor="terms&Conditions" className="text-sm text-red-900 font-semibold">I Agree to <a href='https://saathstudio.com/terms-and-condition'>Terms & Conditions </a></label>
+                    <label htmlFor="terms&Conditions" className="text-sm text-red-900 font-semibold">I Agree to <a href='https://saathstudio.com/terms-and-condition' target="blank">Terms & Conditions </a></label>
                   </div>
                   {error && <p className="text-red-500 text-sm">{error}</p>}
                   <div className="flex justify-center w-full">

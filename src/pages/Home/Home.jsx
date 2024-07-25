@@ -1305,6 +1305,8 @@ function Home() {
                 <ProPlanModal
                   setIsModalOpen={setIsModalOpen}
                   membershipdetails={membershipdetails}
+                  handlePayment={handlePayment}
+
                 />
               )}
             </div>
