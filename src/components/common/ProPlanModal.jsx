@@ -44,8 +44,7 @@ const handleLogin = async (e) => {
         } else if (data.status === 101) {
           setIsModalOpen(false);
           const userData = { username, email, userid };
-         await localStorage.setItem('user', JSON.stringify(userData));
-         await handlePayment()
+         await handlePayment(userData)
         } else if (data.status === 402) {
           alert('This email already has a lifetime plan. Please use another email');
         } else if (data.status === 401) {

@@ -182,7 +182,10 @@ function Home() {
   };
 
   const handlePayment = () => {
-    const user = localStorage.getItem('user');
+      setIsModalOpen(true)
+  }
+
+  const handleRozrpapy = (user) => {
     if (!user) {
       setIsModalOpen(true)
     } else {
@@ -382,6 +385,16 @@ function Home() {
             </div>
             <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
               <div className="box-icon-wrapper shrink-0">
+                <img src="images/voiceicon3.webp" alt="" />
+              </div>
+              <div className="box-text pl-3 max-w-64">
+                <h4 className="text-[19px] lg:text-lg font-avertabold">
+                  Customizable Tanpura and Swarmandal
+                </h4>
+              </div>
+            </div>
+            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
+              <div className="box-icon-wrapper shrink-0">
                 <img src="images/voiceicon1.webp" alt="" />
               </div>
               <div className="box-text pl-3 max-w-64">
@@ -395,16 +408,7 @@ function Home() {
                 </h4>
               </div>
             </div>
-            <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
-              <div className="box-icon-wrapper shrink-0">
-                <img src="images/voiceicon3.webp" alt="" />
-              </div>
-              <div className="box-text pl-3 max-w-64">
-                <h4 className="text-[19px] lg:text-lg font-avertabold">
-                  Customizable Tanpura and Swarmandal
-                </h4>
-              </div>
-            </div>
+            
             <div className="w-full md:w-[47%] lg:w-[30%] flex items-start bg-white rounded-2xl p-4 lg:py-8 lg:px-6">
               <div className="box-icon-wrapper shrink-0">
                 <img src="images/voiceicon5.webp" alt="" />
@@ -1306,11 +1310,11 @@ function Home() {
                 Saath Tabla APP
               </h3>
               <h4 className="text-[#949494] text-2xl mb-3 text-center lg:text-left line-through">
-                Regular: {planDetails && planDetails?.originalPrice}
+                Regular: ₹{planDetails && planDetails?.originalPrice}
               </h4>
               <h5 className="text-[24px] font-avertabold text-center lg:text-left">
                 <span className="text-[40px]">
-                  {planDetails && planDetails?.discountedPrice}
+                ₹{planDetails && planDetails?.discountedPrice}
                 </span>{" "}
                 ONE TIME PAYMENT
               </h5>
@@ -1366,7 +1370,7 @@ function Home() {
                 <ProPlanModal
                   setIsModalOpen={setIsModalOpen}
                   membershipdetails={membershipdetails}
-                  handlePayment={handlePayment}
+                  handlePayment={handleRozrpapy}
 
                 />
               )}

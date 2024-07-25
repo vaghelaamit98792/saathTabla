@@ -3,7 +3,7 @@ import React from "react";
 function HeroBanner() {
   return (
     <>
-        <div className="section-1 py-7 lg:py-14 bg-hero-bg">
+        <div className="section-1 py-7 lg:py-14 bg-cover bg-hero-bg">
         <div className="container mx-auto">
           <div className="flex justify-center">
             <h1 className="px-3 lg:px-5 py-1 rounded-3xl border border-[#8680f9] inline-block text-base lg:text-xl font-averta text-center">

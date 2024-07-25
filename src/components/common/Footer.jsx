@@ -1,4 +1,8 @@
 import React from "react";
+import { APPSTORE, GOOGLE_PLAY_STORE } from "../../constant";
+import GooglePlay from "../../public/images/svg/google-play-badge-logo-svgrepo-com.svg";
+import Appstore from "../../public/images/svg/download-on-the-app-store-apple-logo-svgrepo-com.svg";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
@@ -142,6 +146,18 @@ function Footer() {
                       </a>
                     </li>
                   </ul>
+                  <div className="flex md:mt-7  mt-6 ">
+                    <div className="lg:w-4/12 w-7/12 m-1">
+                      <Link to={GOOGLE_PLAY_STORE} target="blank">
+                        <img src={GooglePlay} alt="" className="lg:w-72 w-36" />
+                      </Link>
+                    </div>
+                    <div className='lg:w-4/12 w-7/12 m-1'>
+                      <Link to={APPSTORE} target="blank">
+                        <img src={Appstore} alt="" className="lg:w-72 w-36" />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
