@@ -47,7 +47,7 @@ function TablaAccompaniment() {
   };
 
   const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayerContext();
-  console.log(playingIndex,"playingIndextabal acco");
+  
   return (
     <>
       <div className="section7 py-8 md:py-14 lg:pt-28 lg:pb-10 relative">

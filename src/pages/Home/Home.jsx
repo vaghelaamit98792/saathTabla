@@ -12,21 +12,28 @@ import ProPlanModal from "../../components/common/ProPlanModal";
 import { Spinner } from "../../components/common/Spinner";
 import Artists from "../../components/Artists";
 import { accordionData, bars, cards, Durt } from "../../data/data";
-import {  GetMembershipdetailsApi, PlaceUserOrderAndroidApi, RozerpayKeyId, RozerpaySrcLink } from "../../constant";
+import {
+  GetMembershipdetailsApi,
+  RozerpayKeyId,
+  RozerpaySrcLink,
+} from "../../constant";
 import VoteAnswerAlert from "../../components/common/VoteAnsweralert";
 import TablaAccompaniment from "../../components/TablaAccompaniment";
 import { useAudioPlayerContext } from "../../context/useAudioPlayerContext";
 import GooglePlay from "../../public/images/svg/google-play-badge-logo-svgrepo-com.svg";
 import Appstore from "../../public/images/svg/download-on-the-app-store-apple-logo-svgrepo-com.svg";
-import { APPSTORE, GOOGLE_PLAY_STORE } from '../../constant';
+import { APPSTORE, GOOGLE_PLAY_STORE } from "../../constant";
+import { placeOrder } from "../../api/placeOrder";
+import { handlePaymentSuccess } from "../../hooks/useHandlePaymentSuccess";
+import Paymentsuccess from "../../components/common/Paymentsuccess";
 
 function Home() {
   const [activeIndex, setActiveIndex] = useState(null);
   const [planDetails, setPlanDetails] = useState(null);
-  const [membershipdetails, setMembershipdetails] = useState(null)
+  const [membershipdetails, setMembershipdetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ setPaymentStatus] = useState('');
+  const [paymentstatus,setPaymentStatus] = useState(false);
   const [checked1, setChecked1] = useState(false);
   const [checked2, setChecked2] = useState(false);
 
@@ -45,8 +52,6 @@ function Home() {
     };
   }, []);
   const { playingIndex, isPlaying, handlePlayPause } = useAudioPlayerContext();
-  console.log(playingIndex,"playingIndexhome");
-
 
   const settings = {
     dots: true,
@@ -57,7 +62,7 @@ function Home() {
     autoplay: true,
     autoplaySpeed: 3000,
   };
-  
+
   const handleToggle = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
@@ -73,27 +78,26 @@ function Home() {
         const response = await axios.post(
           GetMembershipdetailsApi,
           new URLSearchParams({
-            api_key: 'nK<uJ@Tk8&$B#-xq-?#}',
+            api_key: "nK<uJ@Tk8&$B#-xq-?#}",
             membership_id: "6",
-
           }),
           {
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
+              "Content-Type": "application/x-www-form-urlencoded",
             },
           }
         );
-        console.log(response, "response");
         if (!response.statusText === "ok") {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
 
         if (response.data.status === "1") {
           setPlanDetails({
             originalPrice: response.data.membership_details.web_planprice_inr,
-            discountedPrice: response.data.membership_details.web_discountedprice_inr,
+            discountedPrice:
+              response.data.membership_details.web_discountedprice_inr,
           });
-          setMembershipdetails(response.data.membership_details)
+          setMembershipdetails(response.data.membership_details);
         } else {
           throw new Error(response.data.message);
         }
@@ -113,8 +117,8 @@ function Home() {
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = RozerpaySrcLink ;
+      const script = document.createElement("script");
+      script.src = RozerpaySrcLink;
       script.onload = () => {
         resolve(true);
       };
@@ -126,76 +130,79 @@ function Home() {
   };
 
   const displayRazorpay = async (user) => {
-    const res = await loadRazorpay();
+  
+    const paymentMode = "razorpay";
+    const createOrderResponse = await placeOrder(
+      user.userid,
+      membershipdetails?.membership_id,
+      membershipdetails?.web_discountedprice_inr,
+      membershipdetails.level_name,
+      paymentMode
+    );
 
-    if (!res) {
-      alert('Razorpay SDK failed to load. Are you online?');
-      return;
-    }
-    const formData = new URLSearchParams();
-    formData.append('api_key', RozerpayKeyId);
-    formData.append('userid', user.userid);
-    formData.append('membership_id', membershipdetails?.membership_id);
-    formData.append('order_amount', membershipdetails?.web_discountedprice_inr);
-    formData.append('order_remark', membershipdetails.level_name);
-    formData.append('payment_mode', 'razorpay');
-    const createOrderResponse = await fetch(PlaceUserOrderAndroidApi, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: formData,
-    });
-
-
-    const { order_id } = await createOrderResponse.json();
-
-    const options = {
-      key: RozerpayKeyId ,
-      amount: parseFloat(membershipdetails.web_discountedprice_inr) * 100, // Convert to paise
-      currency: 'INR',
-      name: user.username,
-      description: 'Test Transaction',
-      image: "compnaylogo",
-      order_id: order_id,
-      handler: function (response) {
-        alert(`Payment ID: ${response.razorpay_payment_id}`);
-        alert(`Order ID: ${response.razorpay_order_id}`);
-        alert(`Signature: ${response.razorpay_signature}`);
-        setPaymentStatus('Payment successful');
-      },
-      prefill: {
-        name: user.username,
-        email: user.email,
-        contact: ''
-      },
-      notes: {
-        address: 'Razorpay Corporate Office'
-      },
-      theme: {
-        color: '#3399cc'
-      }
-    };
-
-    const rzp1 = new window.Razorpay(options);
-    rzp1.open();
+    await razorPayDisplay(createOrderResponse,user);
+   
+  
   };
+  const razorPayDisplay=async(createOrderResponse,user)=>{
 
-  const handlePayment = () => {
-      setIsModalOpen(true)
+    if (createOrderResponse.success) {
+      const res = await loadRazorpay();
+      if (!res) {
+        alert("Razorpay SDK failed to load. Are you online?");
+        return;
+      }
+    
+      const options = {
+        key: RozerpayKeyId,
+        amount: parseFloat(membershipdetails.web_discountedprice_inr) * 100, // Convert to paise
+        currency: "INR",
+        name: user.username,
+        description: "Test Transaction",
+        image: "compnaylogo",
+        handler:async function (response) {
+          
+         await handlePaymentSuccess("apiKey", createOrderResponse?.data.order_id, createOrderResponse?.data.payment_status, response.razorpay_payment_id, "coupon", user.userId, membershipdetails?.membership_id, "expiryDate", createOrderResponse?.data.payment_mode, membershipdetails?.web_discountedprice_inr);
+         if (response.razorpay_payment_id) {
+          setPaymentStatus(true)          
+         }
+        },
+        prefill: {
+          name: user.username,
+          email: user.email,
+          contact: "",
+        },
+        notes: {
+          address: "Razorpay Corporate Office",
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+      if (createOrderResponse.success) {
+        const rzp1 = new window.Razorpay(options);
+        rzp1.open();
+      }
+    }
   }
+  const handlePayment = () => {
+    setIsModalOpen(true);
+  };
 
   const handleRozrpapy = (user) => {
     if (!user) {
-      setIsModalOpen(true)
+      setIsModalOpen(true);
     } else {
-      displayRazorpay(user)
+      displayRazorpay(user);
     }
-  }
+  };
 
   return (
     <>
       <HeroBanner />
+      {paymentstatus  && 
+          <Paymentsuccess setPaymentStatus={setPaymentStatus} />
+         }
       <div className="section2 pt-10">
         <div className="container mx-auto">
           <h2 className="text-xl md:text-[34px] font-avertabold text-center">

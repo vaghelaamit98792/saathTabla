@@ -12,8 +12,6 @@ const ProPlanModal = ({setIsModalOpen, membershipdetails,handlePayment}) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-
-
 const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
