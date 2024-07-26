@@ -146,7 +146,9 @@ function Footer() {
                       </a>
                     </li>
                   </ul>
-                  <div className="flex md:mt-7  mt-6 ">
+                </div>
+              </div>
+                  <div className="inline-flex md:mt-7  mt-6 ">
                     <div className="lg:w-4/12 w-7/12 m-1">
                       <Link to={GOOGLE_PLAY_STORE} target="blank">
                         <img src={GooglePlay} alt="" className="lg:w-72 w-36" />
@@ -158,8 +160,6 @@ function Footer() {
                       </Link>
                     </div>
                   </div>
-                </div>
-              </div>
             </div>
           </div>
           <div className="text-base text-[#adb4ba] pb-5">
