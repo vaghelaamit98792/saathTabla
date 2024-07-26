@@ -3,7 +3,7 @@ import React, {  useState } from 'react';
 import {  UserLifetimeSignupApi } from '../../constant';
 
 
-const ProPlanModal = ({setIsModalOpen, membershipdetails,handlePayment}) => {
+const ProPlanModal = ({setIsModalOpen, membershipdetails,handlePayment,setShowPaymentstatusmodel,setShowPaymentstatustext}) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -35,14 +35,20 @@ const handleLogin = async (e) => {
 
         const data = response.data;
         const userid = data?.userid;
+        const message = data?.message;
+        const status = data?.status;
+
+
         console.log(data, "datalogin");
 
         if (data.status === 102) {
           setIsOtpRequired(true);
+          const userData = { username, email, userid, message,status };
+          await handlePayment(userData)
         } else if (data.status === 101) {
           setIsModalOpen(false);
-          const userData = { username, email, userid };
-         await handlePayment(userData)
+          setShowPaymentstatusmodel(true)
+          setShowPaymentstatustext(data.message)
         } else if (data.status === 402) {
           alert('This email already has a lifetime plan. Please use another email');
         } else if (data.status === 401) {
@@ -59,6 +65,63 @@ const handleLogin = async (e) => {
     }
   };
 
+  
+const handleotp = async (e) => {
+  e.preventDefault();
+  setError('');
+  if (checked) {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        UserLifetimeSignupApi,
+        new URLSearchParams({
+          api_key: 'nK<uJ@Tk8&$B#-xq-?#}',
+          email: email,
+          name: username,
+          otp: otp
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+
+      const data = response.data;
+      const userid = data?.userid;
+      const message = data?.message;
+      const status = data?.status;
+
+
+      console.log(data, "datalogin");
+
+      if (data.status === 102) {
+        setIsOtpRequired(true);
+        // const userData = { username, email, userid, message,status };
+        // await handlePayment(userData)
+      } else if (data.status === 101) {
+        const userData = { username, email, userid, message,status };
+        setIsModalOpen(false);
+        // setShowPaymentstatusmodel(true)
+        // setShowPaymentstatustext(data.message)
+        await handlePayment(userData)
+
+      } else if (data.status === 402) {
+        alert('This email already has a lifetime plan. Please use another email');
+      } else if (data.status === 401) {
+        alert('Account validation failed. Please retry or try with a different email id');
+      }
+    } catch (error) {
+      console.error('Error during API call', error);
+      alert('An error occurred. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  } else {
+    setError('You must agree to the terms and conditions');
+  }
+};
+
   return (
     <>
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -74,10 +137,84 @@ const handleLogin = async (e) => {
                   <img src="./images/logo.png" alt="Saath Tabla" className="mx-auto w-20 lg:w-48" />
 
                   <div className="lg:text-base text-xs mt-2 font-bold">Saath Tabla</div>
-                  <div className="text-2xl md:text-3xl mt-2 sm:mb-2 mb-2 font-bold">Rs. 3499 only</div>
+                  <div className="text-2xl md:text-3xl mt-2 sm:mb-2 mb-2 font-bold">Rs. {membershipdetails&& membershipdetails.web_discountedprice_inr} only</div>
                   <div className="mt-2 font-bold">One Time Payment - No recurring subscriptions</div>
                 </div>
-                <form className="mt-1 sm:mt-6 md:w-96 mx-auto px-2 text-center" onSubmit={handleLogin}>
+                {!isOtpRequired ? (
+                    <form className="mt-1 sm:mt-6 md:w-96 mx-auto px-2 text-center" onSubmit={handleLogin}>
+                    <input
+                      placeholder="Name"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      className="w-full p-2 border border-gray-300 mb-1 sm:mb-4"
+                    />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="Email"
+                      className="w-full p-2 border border-gray-300 mb-1 sm:mb-4"
+                    />
+                    {isOtpRequired && (
+                      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="bg-white p-4 rounded shadow-lg w-[20%] h-[20%]">
+                          <h3 className="text-lg font-semibold mb-4">Please Enter OTP sent on your Email
+                          </h3>
+                          <input
+                            type="text"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            required
+                            className="w-full p-2 border border-gray-300 mb-4"
+                          />
+                          <div className="flex justify-center">
+                          <button
+                              type="submit"
+                              className="mr-2 px-4 py-2 bg-red-900 text-white rounded"
+                            >
+                              Submit
+                            </button>
+                            <button
+                              type="button"
+                              className=" px-4 py-2 bg-gray-200 text-red-800 rounded"
+                              onClick={() => setIsOtpRequired(false)}
+                            >
+                              Cancel
+                            </button>
+                           
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center mb-4 mt-2 justify-center">
+                      <input
+                        type="checkbox"
+                        id="terms&Conditions"
+                        name="terms&Conditions"
+                        className="mr-2"
+                        onChange={(e)=> setChecked(e.target.checked)}
+                      />
+                      <label htmlFor="terms&Conditions" className="text-sm text-red-900 font-semibold">I Agree to <a href='https://saathstudio.com/terms-and-condition' target="blank">Terms & Conditions </a></label>
+                    </div>
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    <div className="flex justify-center w-full">
+                      <button
+                        type="submit"
+                        className="bg-red-900 text-white py-1 px-1 w-46 rounded-full font-bold flex justify-center gap-3 items-center hover:bg-red-600"
+                      >
+                        {loading && <div className="flex justify-center items-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-100"></div>
+                      </div>}
+                        <p className="pl-4">PAY NOW</p>
+                        <div className="w-8 h-8 flex justify-center items-center rounded-full text-red-900 bg-red-100">$</div>
+                      </button>
+                    </div>
+                  </form>
+                ) :(
+                  <form className="mt-1 sm:mt-6 md:w-96 mx-auto px-2 text-center" onSubmit={handleotp}>
                   <input
                     placeholder="Name"
                     type="text"
@@ -149,6 +286,9 @@ const handleLogin = async (e) => {
                     </button>
                   </div>
                 </form>
+                )}
+              
+               
                 <div className="sm:mt-10 mt-2">
                   <div className="md:text-base sm:text-xs text-[8px] mt-4 text-gray-600">
                     <strong>Note: </strong> if you already have an account on Saath Tabla with the given email ID then the lifetime pro plan will be activated to that account after successful payment. If you don't have an account on Saath Tabla app, we will automatically create one for you with this email and send you the account password to your email.

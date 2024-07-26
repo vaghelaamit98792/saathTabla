@@ -26,6 +26,8 @@ import { APPSTORE, GOOGLE_PLAY_STORE } from "../../constant";
 import { placeOrder } from "../../api/placeOrder";
 import { handlePaymentSuccess } from "../../hooks/useHandlePaymentSuccess";
 import Paymentsuccess from "../../components/common/Paymentsuccess";
+import Alreadypurchsed from "../../components/common/Alreadypurchsed";
+import Paymentfailed from "../../components/common/Paymentfailed";
 
 function Home() {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -33,9 +35,12 @@ function Home() {
   const [membershipdetails, setMembershipdetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [paymentstatus,setPaymentStatus] = useState(false);
+  const [paymentstatus,setPaymentStatus] = useState(null);
   const [checked1, setChecked1] = useState(false);
   const [checked2, setChecked2] = useState(false);
+const [showPaymentstatusmodel, setShowPaymentstatusmodel] = useState(false)
+const [paymentstatustext, setPaymentstatustext] = useState(null)
+const [userdata,setUserdata] = useState(null)
 
   const handleCheckboxChange = (setter) => () => {
     setter((prev) => !prev);
@@ -133,7 +138,7 @@ function Home() {
   
     const paymentMode = "razorpay";
     const createOrderResponse = await placeOrder(
-      user.userid,
+      user?.userid,
       membershipdetails?.membership_id,
       membershipdetails?.web_discountedprice_inr,
       membershipdetails.level_name,
@@ -164,7 +169,11 @@ function Home() {
           
          await handlePaymentSuccess("apiKey", createOrderResponse?.data.order_id, createOrderResponse?.data.payment_status, response.razorpay_payment_id, "coupon", user.userId, membershipdetails?.membership_id, "expiryDate", createOrderResponse?.data.payment_mode, membershipdetails?.web_discountedprice_inr);
          if (response.razorpay_payment_id) {
-          setPaymentStatus(true)          
+          setPaymentStatus(true)
+          setUserdata(user)          
+         }else{
+          setPaymentStatus(false)
+          setUserdata(user)
          }
         },
         prefill: {
@@ -200,9 +209,10 @@ function Home() {
   return (
     <>
       <HeroBanner />
-      {paymentstatus  && 
-          <Paymentsuccess setPaymentStatus={setPaymentStatus} />
-         }
+      {paymentstatus ? 
+          <Paymentsuccess setPaymentStatus={setPaymentStatus} /> : paymentstatus === false ? <Paymentfailed handleRozrpapy={displayRazorpay} setPaymentStatus={setPaymentStatus} userdata={userdata}/> : null
+      } 
+       {/* <Paymentfailed handleRozrpapy={displayRazorpay} setPaymentStatus={setPaymentStatus} userdata={userdata}/> */}
       <div className="section2 pt-10">
         <div className="container mx-auto">
           <h2 className="text-xl md:text-[34px] font-avertabold text-center">
@@ -1378,9 +1388,13 @@ function Home() {
                   setIsModalOpen={setIsModalOpen}
                   membershipdetails={membershipdetails}
                   handlePayment={handleRozrpapy}
-
+                  setShowPaymentstatusmodel={setShowPaymentstatusmodel}
+                  setShowPaymentstatustext={setPaymentstatustext}
                 />
               )}
+              {showPaymentstatusmodel &&
+                <Alreadypurchsed showPaymentstatusmodel={setShowPaymentstatusmodel} Paymentstatustext={paymentstatustext} />
+              }
             </div>
           </div>
         </div>

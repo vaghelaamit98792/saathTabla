@@ -5,7 +5,7 @@ export async function updateOrder(apiKey, orderId, paymentStatus, paymentRefNo, 
   const formData = new FormData();
   formData.append('api_key', 'nK<uJ@Tk8&$B#-xq-?#}');
   formData.append('order_id', orderId);
-  formData.append('payment_status', paymentStatus);
+  formData.append('payment_status', 1);
   formData.append('payment_ref_no', paymentRefNo);
   // formData.append('coupon', coupon);
 
