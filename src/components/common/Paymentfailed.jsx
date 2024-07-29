@@ -2,6 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 function Paymentfailed({setPaymentStatus ,handleRozrpapy,userdata,setIsModalOpen}) {
+  
+  const handlePaymentStatus = () => {
+    handleRozrpapy(userdata)
+    setPaymentStatus(null);    
+  }
+
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -22,7 +28,7 @@ function Paymentfailed({setPaymentStatus ,handleRozrpapy,userdata,setIsModalOpen
         <div className=" mx-auto pb-6 text-center md:mb-12 mt-12">
           <Link
               className="bg-[#ff373b] text-black font-extrabold py-3 px-5 rounded-3xl  "
-              onClick={()=>{handleRozrpapy(userdata)}}
+              onClick={()=>{handlePaymentStatus()}}
             >
               Try again
             </Link>

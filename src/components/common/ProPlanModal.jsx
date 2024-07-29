@@ -49,11 +49,18 @@ const handleLogin = async (e) => {
           await handlePayment(userData)
           // setShowPaymentstatusmodel(true)
           // setShowPaymentstatustext(data.message)
-        } else if (data.status === 402) {
-          alert('This email already has a lifetime plan. Please use another email');
+        }  else if (data.status === 402) {
+          // alert('This email already has a lifetime plan. Please use another email');
+          setError('This email already has a lifetime plan. Please use another email');
+          setTimeout(()=>{
+            setError('');
+          },2000)
           setIsModalOpen(true);
         } else if (data.status === 401) {
-          alert('Account validation failed. Please retry or try with a different email id');
+          setError('Account validation failed. Please retry or try with a different email id');
+          setTimeout(()=>{
+            setError('');
+          },2000)
           setIsModalOpen(true);
         }
       } catch (error) {
@@ -162,7 +169,7 @@ const handleotp = async (e) => {
                     />
                     {isOtpRequired && (
                       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                        <div className="bg-white p-4 rounded shadow-lg w-[20%] h-[20%]">
+                        <div className="bg-white p-4 rounded shadow-lg w-fit lg:w-[20%] h-[20%]">
                           <h3 className="text-lg font-semibold mb-4">Please Enter OTP sent on your Email
                           </h3>
                           <input

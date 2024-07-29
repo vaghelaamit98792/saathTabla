@@ -23,6 +23,9 @@ function Paymentsuccess({setPaymentStatus}) {
               to="https://saathstudio.com"
               target="_blank"
               className="bg-[#25d955] text-white py-2 px-5 rounded-md  "
+              onClick={() => {
+                setPaymentStatus(false);
+            }}
             >
               OK
             </Link>
