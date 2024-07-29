@@ -43,16 +43,18 @@ const handleLogin = async (e) => {
 
         if (data.status === 102) {
           setIsOtpRequired(true);
-          const userData = { username, email, userid, message,status };
-          await handlePayment(userData)
         } else if (data.status === 101) {
           setIsModalOpen(false);
-          setShowPaymentstatusmodel(true)
-          setShowPaymentstatustext(data.message)
+          const userData = { username, email, userid, message,status };
+          await handlePayment(userData)
+          // setShowPaymentstatusmodel(true)
+          // setShowPaymentstatustext(data.message)
         } else if (data.status === 402) {
           alert('This email already has a lifetime plan. Please use another email');
+          setIsModalOpen(true);
         } else if (data.status === 401) {
           alert('Account validation failed. Please retry or try with a different email id');
+          setIsModalOpen(true);
         }
       } catch (error) {
         console.error('Error during API call', error);

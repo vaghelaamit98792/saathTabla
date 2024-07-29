@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function Paymentfailed({setPaymentStatus ,handleRozrpapy,userdata}) {
+function Paymentfailed({setPaymentStatus ,handleRozrpapy,userdata,setIsModalOpen}) {
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -12,7 +12,8 @@ function Paymentfailed({setPaymentStatus ,handleRozrpapy,userdata}) {
             className="absolute top-4 right-4 p-2"
             data-dismiss="modal"
             onClick={() => {
-              setPaymentStatus(null);
+              setPaymentStatus(null);    
+              setIsModalOpen(true)
             }}
           >
             <img src="images/crosspop.webp" className="w-2 h-2 rounded-lg" alt="close" />

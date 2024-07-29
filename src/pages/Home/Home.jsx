@@ -28,6 +28,7 @@ import { handlePaymentSuccess } from "../../hooks/useHandlePaymentSuccess";
 import Paymentsuccess from "../../components/common/Paymentsuccess";
 import Alreadypurchsed from "../../components/common/Alreadypurchsed";
 import Paymentfailed from "../../components/common/Paymentfailed";
+import compnaylogo from "../../public/images/logo.png"
 
 function Home() {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -36,6 +37,8 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentstatus,setPaymentStatus] = useState(null);
+  const [paymentFailedBoolean,setpaymentFailedBoolean] = useState(false);
+
   const [checked1, setChecked1] = useState(false);
   const [checked2, setChecked2] = useState(false);
 const [showPaymentstatusmodel, setShowPaymentstatusmodel] = useState(false)
@@ -149,32 +152,42 @@ const [userdata,setUserdata] = useState(null)
    
   
   };
-  const razorPayDisplay=async(createOrderResponse,user)=>{
-
+  const razorPayDisplay = async (createOrderResponse, user) => {
     if (createOrderResponse.success) {
       const res = await loadRazorpay();
       if (!res) {
         alert("Razorpay SDK failed to load. Are you online?");
         return;
       }
-    
+  
       const options = {
         key: RozerpayKeyId,
         amount: parseFloat(membershipdetails.web_discountedprice_inr) * 100, // Convert to paise
         currency: "INR",
         name: user.username,
         description: "Test Transaction",
-        image: "compnaylogo",
-        handler:async function (response) {
-          
-         await handlePaymentSuccess("apiKey", createOrderResponse?.data.order_id, createOrderResponse?.data.payment_status, response.razorpay_payment_id, "coupon", user.userId, membershipdetails?.membership_id, "expiryDate", createOrderResponse?.data.payment_mode, membershipdetails?.web_discountedprice_inr);
-         if (response.razorpay_payment_id) {
-          setPaymentStatus(true)
-          setUserdata(user)          
-         }else{
-          setPaymentStatus(false)
-          setUserdata(user)
-         }
+        image: compnaylogo,
+        handler: async function (response) {
+          console.log(response, 'razorpay response');
+          await handlePaymentSuccess(
+            "apiKey",
+            createOrderResponse?.data.order_id,
+            createOrderResponse?.data.payment_status,
+            response.razorpay_payment_id,
+            "coupon",
+            user.userID,
+            membershipdetails?.membership_id,
+            "expiryDate",
+            createOrderResponse?.data.payment_mode,
+            membershipdetails?.web_discountedprice_inr
+          );
+          if (response.razorpay_payment_id) {
+            setPaymentStatus(true);
+            setUserdata(user);
+          } else {
+            setpaymentFailedBoolean(true);
+            setUserdata(user);
+          }
         },
         prefill: {
           name: user.username,
@@ -187,13 +200,22 @@ const [userdata,setUserdata] = useState(null)
         theme: {
           color: "#3399cc",
         },
+        modal: {
+          ondismiss: function() {
+            console.log("Payment popup closed by the user without completing the payment.");
+            setpaymentFailedBoolean(true);
+            setUserdata(user);
+          }
+        }
       };
+  
       if (createOrderResponse.success) {
         const rzp1 = new window.Razorpay(options);
         rzp1.open();
       }
     }
-  }
+  };
+  
   const handlePayment = () => {
     setIsModalOpen(true);
   };
@@ -210,8 +232,10 @@ const [userdata,setUserdata] = useState(null)
     <>
       <HeroBanner />
       {paymentstatus ? 
-          <Paymentsuccess setPaymentStatus={setPaymentStatus} /> : paymentstatus === false ? <Paymentfailed handleRozrpapy={displayRazorpay} setPaymentStatus={setPaymentStatus} userdata={userdata}/> : null
-      } 
+          <Paymentsuccess setPaymentStatus={setPaymentStatus} />  : null
+      }
+
+      {paymentFailedBoolean?  <Paymentfailed handleRozrpapy={displayRazorpay} setPaymentStatus={setpaymentFailedBoolean} userdata={userdata} setIsModalOpen={setIsModalOpen}/> : null} 
        {/* <Paymentfailed handleRozrpapy={displayRazorpay} setPaymentStatus={setPaymentStatus} userdata={userdata}/> */}
       <div className="section2 pt-10">
         <div className="container mx-auto">
@@ -486,7 +510,7 @@ const [userdata,setUserdata] = useState(null)
         className="flex items-center cursor-pointer"
       >
         <span
-          className={`relative w-6 h-6 mr-2 border rounded flex items-center justify-center transition-colors duration-300 ${
+          className={`relative w-10 h-6 sm:w-6 sm:h-6  border rounded flex items-center justify-center transition-colors duration-300 ${
             checked1 ? 'bg-transparent border-white' : 'bg-white border-gray-500'
           }`}
         >
@@ -516,7 +540,7 @@ const [userdata,setUserdata] = useState(null)
             )}
           </div>
         </span>
-        CLICK HERE - If you think this video is Text-To-Speech
+        <span className="ml-3">CLICK HERE - If you think this video is Text-To-Speech</span>
       </label>
                   </div>
                  
@@ -560,7 +584,7 @@ const [userdata,setUserdata] = useState(null)
         className="flex items-center cursor-pointer"
       >
         <span
-          className={`relative w-6 h-6 mr-2 border rounded flex items-center justify-center transition-colors duration-300 ${
+          className={`relative w-10 h-6 sm:w-6 sm:h-6 lg:w-6 lg:h-6 mr-3 border rounded flex items-center justify-center transition-colors duration-300 ${
             checked2 ? 'bg-transparent border-white' : 'bg-white border-gray-500'
           }`}
         >

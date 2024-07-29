@@ -8,7 +8,7 @@ export async function handlePaymentSuccess(apiKey, orderId, paymentStatus, payme
 
     if (updateOrderResponse.status === "1") {
 
-      const updateMembershipResponse = await updateMembershipPlan(apiKey, userId, membershipId, expiryDate, paymentMode, orderAmount);
+      const updateMembershipResponse = await updateMembershipPlan(apiKey, updateOrderResponse.userID, membershipId, expiryDate, paymentMode, orderAmount);
       if (updateMembershipResponse.status === "1") {
         console.log("Membership plan updated successfully");
       } else {
