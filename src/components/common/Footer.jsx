@@ -7,8 +7,8 @@ import { Link } from "react-router-dom";
 function Footer() {
   return (
     <>
-      <footer className="bg-gradient-to-r from-[#e9f8ff] to-[#f7f0fe] pt-7 lg:pt-20">
-        <div className="container mx-auto">
+      <footer className="bg-gradient-to-r from-[#e9f8ff] to-[#f7f0fe] pt-7 pb-7 lg:pt-20">
+        <div className="container mx-auto mb-[70px]">
           <div className="flex flex-col lg:flex-row justify-between md:pb-14 lg:pb-24">
             <div className="w-full lg:w-1/2">
               <div className="flex items-center text-2xl font-avertabold ">
