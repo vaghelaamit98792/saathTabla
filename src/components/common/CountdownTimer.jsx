@@ -35,7 +35,7 @@ const CountdownTimer = () => {
         } else {
             // Render the countdown
             return (
-                <div className={`bg-blue-100 sticky text-purple-800 rounded-lg p-4 shadow-lg transition-height-opacity duration-400 ${
+                <div className={`bg-blue-100 bottom-0 text-purple-800 fixed w-full z-[999999] p-4 shadow-lg transition-height-opacity duration-400 ${
                     isClosing ? 'animate-slideUp' : ''
                 }`}>
                     <div className="text-center lg:flex justify-center items-center">
