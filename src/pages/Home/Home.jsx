@@ -29,6 +29,7 @@ import Paymentsuccess from "../../components/common/Paymentsuccess";
 import Alreadypurchsed from "../../components/common/Alreadypurchsed";
 import Paymentfailed from "../../components/common/Paymentfailed";
 import compnaylogo from "../../public/images/logo.png"
+import CountdownTimer from "../../components/common/CountdownTimer";
 
 function Home() {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -229,6 +230,7 @@ const [userdata,setUserdata] = useState(null)
 
   return (
     <>
+      <CountdownTimer/>
       <HeroBanner />
       {paymentstatus ? 
           <Paymentsuccess setPaymentStatus={setPaymentStatus} />  : null
